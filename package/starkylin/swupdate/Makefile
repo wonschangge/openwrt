@@ -22,7 +22,7 @@ SWUPDATE_SYM=$(if $(CONFIG_SWUPDATE_CUSTOM),CONFIG,DEFAULT)
 SWUPDATE_IF_ENABLED=$(if $(CONFIG_SWUPDATE_$(SWUPDATE_SYM)_$(1)),$(2))
 
 PKG_BUILD_DEPENDS:=\
-  +zlib \
+  zlib \
   +SWUPDATE_$(SWUPDATE_SYM)_LIBCONFIG:libconfig \
   +SWUPDATE_$(SWUPDATE_SYM)_CURL:curl \
   +SWUPDATE_$(SWUPDATE_SYM)_UBOOT:uboot-envtools \
@@ -46,7 +46,6 @@ define Package/$(PKG_NAME)
   TITLE:=software update for embedded system
   DEFAULT:=y if TARGET_bcm27xx
   DEPENDS:=\
-	+@TARGET_bcm27xx \
 	+zlib \
 	+SWUPDATE_$(SWUPDATE_SYM)_LIBCONFIG:libconfig \
 	+SWUPDATE_$(SWUPDATE_SYM)_CURL:curl \
