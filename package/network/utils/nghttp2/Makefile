@@ -5,14 +5,16 @@ PKG_VERSION:=1.24.0
 PKG_RELEASE=$(PKG_SOURCE_VERSION)
 
 PKG_SOURCE:=$(PKG_NAME)-$(PKG_VERSION).tar.bz2
+PKG_BUILD_DIR:=$(BUILD_DIR)/$(PKG_NAME)-$(PKG_VERSION)
+PKG_SOURCE_URL:=https://github.com/nghttp2/nghttp2/releases/download/v$(PKG_VERSION)
+PKG_MD5SUM:=afbd56584f8b542ba3c1dddfa4137681
 
 PKG_LICENSE:=MIT
 
 PKG_BUILD_PARALLEL:=1
 PKG_INSTALL:=1
 
-include $(BUILD_DIR)/package.mk
-include $(BUILD_DIR)/cmake.mk
+include $(INCLUDE_DIR)/package.mk
 
 #CONFIGURE_ARGS += --enable-lib-only
 
