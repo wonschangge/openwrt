@@ -27,7 +27,10 @@ define Package/$(PKG_NAME)
 endef
 
 define Package/$(PKG_NAME)/description
-  A C library for parsing and emitting YAML.
+LibYAML is a YAML 1.1 parser and emitter written in C.
+
+http://pyyaml.org/wiki/LibYAML
+
 endef
 
 define Build/Prepare

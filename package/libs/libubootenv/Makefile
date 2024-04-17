@@ -28,10 +28,16 @@ define Package/$(PKG_NAME)
   CATEGORY:=Libraries
   TITLE:=ubootenv lib
   URL:=$(PKG_SOURCE_URL)
+  DEPENDS:=+libyaml +zlib
 endef
 
 define Package/$(PKG_NAME)/description
-  This package contains the libuboot.h
+libubootenv is a library that provides a hardware independent 
+way to access to U-Boot environment.
+ 
+The package provides the fw_printenv / fw_setenv utilities, 
+new tools build from the library and not from U-Boot.
+
 endef
 
 define Build/Prepare
