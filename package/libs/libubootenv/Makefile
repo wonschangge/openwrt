@@ -21,8 +21,6 @@ PKG_LICENSE:=MIT LGPL-2.1+ CC0-1.0
 include $(INCLUDE_DIR)/package.mk
 include $(INCLUDE_DIR)/cmake.mk
 
-PKG_BUILD_DEPENDS:=libyaml zlib
-
 define Package/$(PKG_NAME)
   SECTION:=libs
   CATEGORY:=Libraries

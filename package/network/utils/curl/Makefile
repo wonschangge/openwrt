@@ -8,17 +8,17 @@
 include $(TOPDIR)/rules.mk
 
 PKG_NAME:=curl
-PKG_VERSION:=7.55.0
+PKG_VERSION:=8.7.1
 PKG_RELEASE:=1
 
-PKG_SOURCE:=$(PKG_NAME)-$(PKG_VERSION).tar.bz2
+PKG_SOURCE:=$(PKG_NAME)-$(PKG_VERSION).tar.xz
 PKG_SOURCE_URL:=http://curl.haxx.se/download/ \
 	http://www.mirrorspace.org/curl/ \
 	ftp://ftp.sunet.se/pub/www/utilities/curl/ \
 	ftp://ftp.planetmirror.com/pub/curl/ \
 	http://www.mirrormonster.com/curl/download/ \
 	http://curl.mirrors.cyberservers.net/download/
-PKG_MD5SUM:=90cd4d6b20fa7655d2b75efe09fd7bfe
+PKG_MD5SUM:=f4f37253c5f1ad9ee85fa6215fdfeb42
 
 PKG_LICENSE:=MIT
 PKG_LICENSE_FILES:=COPYING
@@ -90,6 +90,7 @@ define Package/libcurl
   DEPENDS:=+LIBCURL_POLARSSL:libpolarssl +LIBCURL_CYASSL:libcyassl +LIBCURL_AXTLS:libaxtls +LIBCURL_OPENSSL:libopenssl +LIBCURL_GNUTLS:libgnutls +LIBCURL_MBEDTLS:libmbedtls
   DEPENDS += +LIBCURL_ZLIB:zlib +LIBCURL_THREADED_RESOLVER:libpthread +LIBCURL_LDAP:libopenldap +LIBCURL_LIBIDN:libidn +LIBCURL_SSH2:libssh2
   DEPENDS += +LIBCURL_NGHTTP2:libnghttp2
+  DEPENDS += +LIBCURL_ZSTD:zstd
   TITLE:=A client-side URL transfer library
   MENU:=1
 endef
@@ -110,7 +111,6 @@ CONFIGURE_ARGS += \
 	--without-ca-bundle \
 	--without-nss \
 	--enable-curldebug \
-	--without-libmetalink \
 	--without-librtmp \
 	$(call autoconf_bool,CONFIG_IPV6,ipv6) \
 	\
@@ -125,6 +125,7 @@ CONFIGURE_ARGS += \
 	$(if $(CONFIG_LIBCURL_LIBIDN),--with-libidn="$(STAGING_DIR)/usr",--without-libidn) \
 	$(if $(CONFIG_LIBCURL_SSH2),--with-libssh2="$(STAGING_DIR)/usr",--without-libssh2) \
 	$(if $(CONFIG_LIBCURL_ZLIB),--with-zlib="$(STAGING_DIR)/usr",--without-zlib) \
+	$(if $(CONFIG_LIBCURL_ZSTD),--with-zstd="$(STAGING_DIR)/usr",--without-zstd) \
 	\
 	$(call autoconf_bool,CONFIG_LIBCURL_DICT,dict) \
 	$(call autoconf_bool,CONFIG_LIBCURL_FILE,file) \

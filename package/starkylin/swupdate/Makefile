@@ -20,9 +20,6 @@ PKG_SOURCE_VERSION:=2042e6dc0f5466bd428f4db18eaff638203150ad
 SWUPDATE_SYM=$(if $(CONFIG_SWUPDATE_CUSTOM),CONFIG,DEFAULT)
 SWUPDATE_IF_ENABLED=$(if $(CONFIG_SWUPDATE_$(SWUPDATE_SYM)_$(1)),$(2))
 
-# +SWUPDATE_$(SWUPDATE_SYM)_MTD:mtd-utils \
-# +SWUPDATE_$(SWUPDATE_SYM)_AWBOOT_HANDLER:ota-burnboot \
-
 TARGET_CFLAGS += -I$(STAGING_DIR)/usr/include
 TARGET_CFLAGS += -I$(STAGING_DIR)/include
 TARGET_LDFLAGS += -L$(STAGING_DIR)/usr/lib
@@ -39,8 +36,6 @@ endif
 ifeq ($(CONFIG_SWUPDATE_CHANNEL_CURL),y)
   TARGET_LDLIBS += curl
 else ifeq ($(CONFIG_SWUPDATE_DOCKER),y)
-  TARGET_LDLIBS += curl
-else ifeq ($(CONFIG_SWUPDATE_SWUFORWARDER_HANDLER),y)
   TARGET_LDLIBS += curl
 endif
 
@@ -71,6 +66,12 @@ ifeq ($(CONFIG_SWUPDATE_ZSTD),y)
   TARGET_LDLIBS += zstd
 endif
 
+ifeq ($(CONFIG_SWUPDATE_SWUFORWARDER_HANDLER),y)
+  TARGET_LDLIBS += curl
+  TARGET_LDLIBS += websockets
+  TARGET_LDLIBS += uriparser
+endif
+
 include $(INCLUDE_DIR)/package.mk
 
 define Package/$(PKG_NAME)
@@ -85,15 +86,20 @@ define Package/$(PKG_NAME)
   +SWUPDATE_CHANNEL_CURL:curl \
   +SWUPDATE_DOCKER:curl \
   +SWUPDATE_DELTA:curl \
-  +SWUPDATE_SWUFORWARDER_HANDLER:curl \
   +SWUPDATE_SURICATTA:curl \
   +SWUPDATE_SSL_IMPL_OPENSSL:libopenssl \
   +SWUPDATE_RDIFFHANDLER:librsync \
   +SWUPDATE_DELTA:zchunk \
   +SWUPDATE_DELTA:zstd \
-  +SWUPDATE_ZSTD:zstd
+  +SWUPDATE_ZSTD:zstd \
+  +SWUPDATE_SWUFORWARDER_HANDLER:curl \
+  +SWUPDATE_SWUFORWARDER_HANDLER:libwebsockets \
+  +SWUPDATE_SWUFORWARDER_HANDLER:liburiparser \
   MENU:=1
 endef
+
+# +SWUPDATE_$(SWUPDATE_SYM)_MTD:mtd-utils \
+# +SWUPDATE_$(SWUPDATE_SYM)_AWBOOT_HANDLER:ota-burnboot \
 
 define Package/$(PKG_NAME)/description
   SWUpdate provides a reliable way to update the software on an embedded system.

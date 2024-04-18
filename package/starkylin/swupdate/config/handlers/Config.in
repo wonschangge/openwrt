@@ -211,7 +211,7 @@ comment "swuforward handler needs libcurl"
 	depends on !SWUPDATE_HAVE_LIBCURL
 
 comment "swuforward handler needs websockets and uriparser"
-	depends on !SWUPDATE_HAVE_LIBWEBSOCKETS || !HAVE_URIPARSER
+	depends on !SWUPDATE_HAVE_LIBWEBSOCKETS || !SWUPDATE_HAVE_URIPARSER
 
 config SWUPDATE_SSBLSWITCH
 	bool "Second Stage Switcher"

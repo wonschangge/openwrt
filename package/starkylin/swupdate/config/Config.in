@@ -116,7 +116,7 @@ config SWUPDATE_HAVE_LIBSYSTEMD
 
 config SWUPDATE_HAVE_LIBCRYPTO
 	bool
-	default n
+	default y
 	#option env="HAVE_LIBCRYPTO"
 
 config SWUPDATE_HAVE_WOLFSSL
@@ -136,7 +136,7 @@ config SWUPDATE_HAVE_P11KIT
 
 config SWUPDATE_HAVE_LIBWEBSOCKETS
 	bool
-	default n
+	default y
 	#option env="HAVE_LIBWEBSOCKETS"
 
 config SWUPDATE_HAVE_LIBRSYNC
@@ -146,7 +146,7 @@ config SWUPDATE_HAVE_LIBRSYNC
 
 config SWUPDATE_HAVE_URIPARSER
 	bool
-	default n
+	default y
 	#option env="HAVE_URIPARSER"
 
 config SWUPDATE_HAVE_ZCK
