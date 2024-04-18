@@ -1,5 +1,11 @@
-menuconfig SWUPDATE_CONFIG_SURICATTA
+# SPDX-FileCopyrightText: 2016 Christian Storm <christian.storm@tngtech.com>
+#
+# SPDX-License-Identifier: GPL-2.0-only
+
+menuconfig SWUPDATE_SURICATTA
 	bool "Suricatta"
+	depends on SWUPDATE_HAVE_LIBCURL
+	select SWUPDATE_CHANNEL_CURL
 	help
 	  Suricatta is a daemon mode of SWUpdate.
 
@@ -14,86 +20,90 @@ menuconfig SWUPDATE_CONFIG_SURICATTA
 	  flashed root file system has failed and a switchback had to
 	  be performed.
 
-if SWUPDATE_CONFIG_SURICATTA
+if SWUPDATE_SURICATTA
 
 menu "Features"
 
-config SWUPDATE_CONFIG_SURICATTA_SSL
+config SWUPDATE_SURICATTA_SSL
 	bool "SSL support"
-	default SWUPDATE_DEFAULT_SURICATTA_SSL
-	depends on SWUPDATE_CONFIG_HAVE_LIBSSL
-	depends on SWUPDATE_CONFIG_HAVE_LIBCRYPTO
+	default n
+	depends on SWUPDATE_SSL_IMPL_OPENSSL || SWUPDATE_SSL_IMPL_WOLFSSL || SWUPDATE_SSL_IMPL_MBEDTLS
+	select SWUPDATE_CHANNEL_CURL_SSL
 	help
 	  Enable SSL and checksum verification support in suricatta.
 
-comment "SSL support needs libcrypto, libssl"
-	depends on !SWUPDATE_CONFIG_HAVE_LIBSSL || !SWUPDATE_CONFIG_HAVE_LIBCRYPTO
-
-choice
-	prompt "Update Status Storage"
-	help
-	  Place for suricatta to persistently store the update
-	  status for, e.g., communicating it to the server after
-	  a reboot.
-
-config SWUPDATE_CONFIG_SURICATTA_STATE_CHOICE_NONE
-	bool "None"
-	help
-	  Do not store update status.
-
-config SWUPDATE_CONFIG_SURICATTA_STATE_CHOICE_BOOTLOADER
-	bool "Bootloader"
-	help
-	  Store update status in Bootloader's environment.
-	  Specify Bootloader environment variable name to store update status in.
-
-endchoice
-
-config SWUPDATE_CONFIG_SURICATTA_STATE_BOOTLOADER
-	string "Store Update Status in Bootloader Environment variable"
-	default SWUPDATE_DEFAULT_SURICATTA_STATE_BOOTLOADER
-	depends on SWUPDATE_CONFIG_SURICATTA_STATE_CHOICE_BOOTLOADER
-	help
-	  Store update information in Bootloader's environment.
+comment "SSL support needs an SSL implementation"
+	depends on !(SWUPDATE_SSL_IMPL_OPENSSL || SWUPDATE_SSL_IMPL_WOLFSSL || SWUPDATE_SSL_IMPL_MBEDTLS)
 
 endmenu
 
 menu "Server"
 
-choice
-	prompt "Server Type"
-	default SWUPDATE_CONFIG_SURICATTA_HAWKBIT
-	help
-	  Choose the server type. Currently, just hawkBit is
-	  supported.
-
-config SWUPDATE_CONFIG_SURICATTA_HAWKBIT
+config SWUPDATE_SURICATTA_HAWKBIT
 	bool "hawkBit support"
-	depends on SWUPDATE_CONFIG_HAVE_LIBCURL
-	depends on SWUPDATE_CONFIG_HAVE_JSON_C
-	select SWUPDATE_CONFIG_CHANNEL_CURL
-	select SWUPDATE_CONFIG_JSON
+	default y
 	help
 	  Support for hawkBit server.
 	  https://projects.eclipse.org/projects/iot.hawkbit
 
-comment "hawkBit support needs libcurl, json-c"
-	depends on !SWUPDATE_CONFIG_HAVE_LIBCURL || !SWUPDATE_CONFIG_HAVE_JSON_C
+config SWUPDATE_SURICATTA_LUA
+	bool "Suricatta Lua module"
+	depends on SWUPDATE_HAVE_LUA
+	select SWUPDATE_CHANNEL_CURL
+	select SWUPDATE_LUA
+	help
+	  Support for Suricatta modules in Lua.
 
-config SWUPDATE_CONFIG_SURICATTA_GENERAL
+	  The JSON support for Suricatta Lua modules
+	  provides JSON as Lua Tables to the Lua realm and
+	  enables channel result parsing to JSON per default.
+	  To enable, select 'libjson' in 'Parser Features'.
+
+config SWUPDATE_SURICATTA_WFX
+	bool "wfx support"
+	depends on SWUPDATE_SURICATTA_LUA
+	select SWUPDATE_EMBEDDED_SURICATTA_LUA
+	help
+	  Support for wfx server.
+	  https://www.github.com/siemens/wfx
+
+config SWUPDATE_EMBEDDED_SURICATTA_LUA
+	bool "Embed Suricatta Lua module in SWUpdate binary"
+	depends on SWUPDATE_SURICATTA_LUA
+	help
+	  Embed the Suricatta Lua module source code file into
+	  the SWUpdate binary.
+
+	  If enabled, a swupdate_suricatta.lua will *not*
+	  be loaded from disk at SWUpdate startup.
+
+	  Note: Exactly one Lua source code file is embedded
+	  into the binary, i.e., possible dependencies either
+	  have to be deployed on the target system or put into
+	  the one embedded Lua source code file.
+
+config SWUPDATE_EMBEDDED_SURICATTA_LUA_SOURCE
+	string "Suricatta Lua module file"
+	depends on SWUPDATE_EMBEDDED_SURICATTA_LUA
+	default "swupdate_suricatta.lua" if !SWUPDATE_SURICATTA_WFX
+	default "suricatta/server_wfx.lua" if SWUPDATE_SURICATTA_WFX
+	help
+	  Path to the Suricatta Lua module source code file to
+	  be embedded into the SWUpdate binary.
+
+config SWUPDATE_SURICATTA_GENERAL
 	bool "General HTTP support"
-	depends on SWUPDATE_CONFIG_HAVE_LIBCURL
-	select SWUPDATE_CONFIG_CHANNEL_CURL
 	help
 	  Support for Simple HTTP coded server
 	  The server uses HTTP return codes to detect if an update
 	  is available. See documentation for more details.
 
-comment "General HTTP backend support needs libcurl"
-	depends on !SWUPDATE_CONFIG_HAVE_LIBCURL
-
-endchoice
-
 endmenu
+
+comment "Suricatta Lua module support needs Lua"
+	depends on !SWUPDATE_HAVE_LUA
+
+comment "Suricatta daemon support needs libcurl"
+	depends on !SWUPDATE_HAVE_LIBCURL
 
 endif

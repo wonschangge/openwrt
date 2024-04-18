@@ -1,39 +1,42 @@
-menuconfig WEBSERVER
+# SPDX-FileCopyrightText: 2013 Stefano Babic <sbabic@denx.de>
+#
+# SPDX-License-Identifier: GPL-2.0-only
+
+menuconfig SWUPDATE_WEBSERVER
 	bool "Web Server"
-	select SWUPDATE_CONFIG_MONGOOSE
+	select SWUPDATE_MONGOOSE
 	help
 	  Enable update from remote using a web server on the target.
 
-if WEBSERVER
+if SWUPDATE_WEBSERVER
 choice
 	prompt "Web Server Type"
-	default SWUPDATE_CONFIG_MONGOOSE
+	default SWUPDATE_MONGOOSE
 	help
 	  Choose the web server
 
-config SWUPDATE_CONFIG_MONGOOSE
+config SWUPDATE_MONGOOSE
 	bool "mongoose"
 	help
 	  Mongoose embeddded web server
 
 endchoice
 
-config SWUPDATE_CONFIG_MONGOOSEIPV6
+config SWUPDATE_MONGOOSEIPV6
 	bool "IPv6 support"
-	default SWUPDATE_DEFAULT_MONGOOSEIPV6
-	depends on SWUPDATE_CONFIG_MONGOOSE
+	default y
+	depends on SWUPDATE_MONGOOSE
 	help
 	   It enables ipv6 support into mongoose
 
-config SWUPDATE_CONFIG_MONGOOSESSL
+config SWUPDATE_MONGOOSESSL
 	bool "SSL support"
-	depends on SWUPDATE_CONFIG_MONGOOSE
-	depends on SWUPDATE_CONFIG_HAVE_LIBSSL
-	depends on SWUPDATE_CONFIG_HAVE_LIBCRYPTO
+	depends on SWUPDATE_MONGOOSE
+	depends on SWUPDATE_SSL_IMPL_OPENSSL || SWUPDATE_SSL_IMPL_WOLFSSL || SWUPDATE_SSL_IMPL_MBEDTLS
 	help
 	   It enables SSL support into mongoose
 
-comment "SSL support needs libcrypto, libssl"
-	depends on !SWUPDATE_CONFIG_HAVE_LIBSSL || !SWUPDATE_CONFIG_HAVE_LIBCRYPTO
+comment "SSL support needs an SSL implementation"
+	depends on !SWUPDATE_SSL_IMPL_OPENSSL && !SWUPDATE_SSL_IMPL_WOLFSSL && !SWUPDATE_SSL_IMPL_MBEDTLS
 
 endif

@@ -1,125 +1,208 @@
+# SPDX-FileCopyrightText: 2013 Stefano Babic <sbabic@denx.de>
+#
+# SPDX-License-Identifier: GPL-2.0-only
+
 #
 # For a description of the syntax of this configuration file,
 # see scripts/kbuild/config-language.txt.
 #
 
+menu "SWUpdate Configuration"
 
-config SWUPDATE_CONFIG_HAVE_LINUX
+config SWUPDATE_HAVE_LINUX
 	bool
 	default y
 	#option env="HAVE_LINUX"
 
-config SWUPDATE_CONFIG_HAVE_FREEBSD
+config SWUPDATE_HAVE_FREEBSD
 	bool
 	default n
 	#option env="HAVE_FREEBSD"
 
-config SWUPDATE_CONFIG_HAVE_DOT_CONFIG
+config SWUPDATE_HAVE_LUA
 	bool
-	default SWUPDATE_DEFAULT_HAVE_DOT_CONFIG
-
-config SWUPDATE_CONFIG_HAVE_LUA
-	bool
-	default y
+	default n
 	#option env="HAVE_LUA"
 
-config SWUPDATE_CONFIG_HAVE_LIBCONFIG
+config SWUPDATE_HAVE_LIBCONFIG
 	bool
 	default y
 	#option env="HAVE_LIBCONFIG"
 
-config SWUPDATE_CONFIG_HAVE_LIBARCHIVE
+config SWUPDATE_HAVE_LIBARCHIVE
 	bool
-	default y
+	default n
 	#option env="HAVE_LIBARCHIVE"
 
-config SWUPDATE_CONFIG_HAVE_LIBCURL
+config SWUPDATE_HAVE_LIBCURL
 	bool
 	default y
 	#option env="HAVE_LIBCURL"
 
-config SWUPDATE_CONFIG_HAVE_LIBGPIOD
+config SWUPDATE_HAVE_LIBFDISK
 	bool
-	default y
+	default n
+	#option env="HAVE_LIBFDISK"
+
+config SWUPDATE_HAVE_LIBBLKID
+	bool
+	default n
+	#option env="HAVE_LIBBLKID"
+
+config SWUPDATE_HAVE_LIBGPIOD
+	bool
+	default n
 	#option env="HAVE_LIBGPIOD"
 
-config SWUPDATE_CONFIG_HAVE_LIBMTD
+config SWUPDATE_HAVE_LIBMTD
 	bool
-	default y
+	default n
 	#option env="HAVE_LIBMTD"
 
-config SWUPDATE_CONFIG_HAVE_LIBUBI
+config SWUPDATE_HAVE_LIBUBI
 	bool
-	default y
+	default n
 	#option env="HAVE_LIBUBI"
 
-config SWUPDATE_CONFIG_HAVE_LIBUBOOTENV
+config SWUPDATE_HAVE_LIBUBOOTENV
 	bool
 	default y
 	#option env="HAVE_LIBUBOOTENV"
 
-config SWUPDATE_CONFIG_HAVE_LIBEBGENV
+config SWUPDATE_HAVE_LIBEBGENV
 	bool
-	default y
+	default n
 	#option env="HAVE_LIBEBGENV"
 
-config SWUPDATE_CONFIG_HAVE_LIBZEROMQ
+config SWUPDATE_HAVE_LIBTEGRABOOT_TOOLS
 	bool
-	default y
+	default n
+	#option env="HAVE_LIBTEGRABOOT_TOOLS"
+
+config SWUPDATE_HAVE_LIBEXT2FS
+	bool
+	default n
+	#option env="HAVE_LIBEXT2FS"
+
+config SWUPDATE_HAVE_LIBBTRFS
+	bool
+	default n
+	#option env="HAVE_LIBBTRFS"
+
+config SWUPDATE_HAVE_LIBZEROMQ
+	bool
+	default n
 	#option env="HAVE_LIBZEROMQ"
 
-config SWUPDATE_CONFIG_HAVE_ZLIB
+config SWUPDATE_HAVE_ZLIB
 	bool
 	default y
 	#option env="HAVE_ZLIB"
 
-config SWUPDATE_CONFIG_HAVE_LIBSSL
+config SWUPDATE_HAVE_ZSTD
+	bool
+	default y
+	#option env="HAVE_ZSTD"
+
+config SWUPDATE_HAVE_LIBSSL
 	bool
 	default y
 	#option env="HAVE_LIBSSL"
 
-config SWUPDATE_CONFIG_HAVE_LIBCRYPTO
+config SWUPDATE_HAVE_LIBSYSTEMD
 	bool
-	default y
+	default n
+	#option env="HAVE_LIBSYSTEMD"
+
+config SWUPDATE_HAVE_LIBCRYPTO
+	bool
+	default n
 	#option env="HAVE_LIBCRYPTO"
 
-config SWUPDATE_CONFIG_HAVE_JSON_C
+config SWUPDATE_HAVE_WOLFSSL
+	bool
+	default n
+	#option env="HAVE_WOLFSSL"
+
+config SWUPDATE_HAVE_MBEDTLS
+	bool
+	default n
+	#option env="HAVE_MBEDTLS"
+
+config SWUPDATE_HAVE_P11KIT
+	bool
+	default n
+	#option env="HAVE_P11KIT"
+
+config SWUPDATE_HAVE_LIBWEBSOCKETS
+	bool
+	default n
+	#option env="HAVE_LIBWEBSOCKETS"
+
+config SWUPDATE_HAVE_LIBRSYNC
 	bool
 	default y
-	#option env="HAVE_JSON_C"
+	#option env="HAVE_LIBRSYNC"
 
-menu "Swupdate Settings"
+config SWUPDATE_HAVE_URIPARSER
+	bool
+	default n
+	#option env="HAVE_URIPARSER"
+
+config SWUPDATE_HAVE_ZCK
+	bool
+	default y
+	#option env="HAVE_ZCK"
+
+menu "SWUpdate Settings"
 
 menu "General Configuration"
 
-config SWUPDATE_CONFIG_CURL
+config SWUPDATE_CURL
 	bool
-	default SWUPDATE_DEFAULT_CURL
+	default n
 
-config SWUPDATE_CONFIG_CURL_SSL
+config SWUPDATE_CURL_SSL
 	bool
-	default SWUPDATE_DEFAULT_CURL_SSL
+	default n
 
-config SWUPDATE_CONFIG_SYSTEMD
+config SWUPDATE_DISKFORMAT
+	bool
+	default n
+
+config SWUPDATE_SYSTEMD
 	bool "enable systemd support"
-	depends on SWUPDATE_CONFIG_HAVE_LINUX
-	default SWUPDATE_DEFAULT_SYSTEMD
+	depends on SWUPDATE_HAVE_LINUX
+	depends on SWUPDATE_HAVE_LIBSYSTEMD
+	default n
 	help
 	  Enable support for systemd's start-up completion
 	  notification and socket-based activation features.
 
-config SWUPDATE_CONFIG_SCRIPTS
+comment "systemd support needs libsystemd"
+	depends on !SWUPDATE_HAVE_LIBSYSTEMD && SWUPDATE_HAVE_LINUX
+
+config SWUPDATE_DEFAULT_CONFIG_FILE
+	string "File with default settings"
+	default "/etc/swupdate.cfg"
+	help
+	  SWUpdate may get its default configuration settings
+	  from the specified file (if present). Users may
+	  override the default configuration with the -f
+	  option switch.
+
+config SWUPDATE_SCRIPTS
 	bool "enable pre and postinstall scripts"
-	default SWUPDATE_DEFAULT_SCRIPTS
+	default y
 	help
 	  Enabling this option, the installer will run
 	  pre- and postinstall scripts, if they are present
 	  in the image. For security reason, this option
 	  can be switched off.
 
-config SWUPDATE_CONFIG_HW_COMPATIBILITY
+config SWUPDATE_HW_COMPATIBILITY
 	bool "check for hardware / software compatibility"
-	default SWUPDATE_DEFAULT_HW_COMPATIBILITY
+	default n
 	help
 	  If enabled, check if the hardware revision
 	  supports the software version. Detecting the hardware
@@ -127,99 +210,91 @@ config SWUPDATE_CONFIG_HW_COMPATIBILITY
 	  For this reason, the software expects that the detected
 	  version is written into a file by a previous software.
 
-config SWUPDATE_CONFIG_HW_COMPATIBILITY_FILE
+config SWUPDATE_HW_COMPATIBILITY_FILE
 	string "File with detected hardware revisions"
-	depends on SWUPDATE_CONFIG_HW_COMPATIBILITY
-	default SWUPDATE_DEFAULT_HW_COMPATIBILITY_FILE
+	depends on SWUPDATE_HW_COMPATIBILITY
+	default "/etc/hwrevision"
 	help
 	  File where to read the detected hardware revsion
 	  that must be compared with the software version.
 	  The file has simple entries (one per line) in the
 	  format of "major.minor".
 
-config SWUPDATE_CONFIG_SW_VERSIONS_FILE
+config SWUPDATE_SW_VERSIONS_FILE
 	string "File with detected software version"
-	default SWUPDATE_DEFAULT_SW_VERSIONS_FILE
+	default "/etc/sw-versions"
 	help
 	  This is an optional file that is scanned at the
 	  beginning to read the installed versions of
-	  all sw-components. Each entry in the file is a
+	  all sw-components. Each entry in the file is
 	  a pair of "name version".
 	  In sw-description,  an image can have the
 	  optional attributes:
 		"name" : key for searching in SW_VERSIONS_FILE
 		"version" : version contained in the .swu
-		"install-if-different" : if set, version
-	  		is compared with the one in SW_VERSIONS_FILE.
+		"install-if-different" : if set, the version
+			is compared with the one in SW_VERSIONS_FILE.
 	  The image is installed only if there is a version mismatch.
-	  This lets reduce risks in case of components that are not
-	  safe to be updated, such as the bootloader. Updating it is a risk,
-	  but in some cases it can be required to do it. Having a check,
+	  This reduces the risk in case of components that are not
+	  safe to update, such as the bootloader. Updating it is a risk,
+	  but in some cases it is required to do it. Having a check,
 	  the risky-component is not always updated.
 
 menu "Socket Paths"
 
-config SWUPDATE_CONFIG_SOCKET_CTRL_PATH
+config SWUPDATE_SOCKET_CTRL_PATH
 	string "SWUpdate control socket path"
-	default SWUPDATE_DEFAULT_SOCKET_CTRL_PATH
 	help
 	  Path to SWUpdate's IPC socket.
 
-config SWUPDATE_CONFIG_SOCKET_PROGRESS_PATH
+config SWUPDATE_SOCKET_PROGRESS_PATH
 	string "SWUpdate progress socket path"
-	default SWUPDATE_DEFAULT_SOCKET_PROGRESS_PATH
 	help
 	  Path to the socket progress information is sent to.
 
-config SWUPDATE_CONFIG_SOCKET_REMOTE_HANDLER_DIRECTORY
-	string "SWUpdate remote handler socket directory"
-	default SWUPDATE_DEFAULT_SOCKET_REMOTE_HANDLER_DIRECTORY
-	help
-	  Directory where sockets to remote handler processes
-	  are expected to be found.
-
-config SWUPDATE_CONFIG_SOCKET_NOTIFIER_DIRECTORY
+config SWUPDATE_SOCKET_NOTIFIER_DIRECTORY
 	string "SWUpdate notifier socket directory"
-	depends on SWUPDATE_CONFIG_HAVE_FREEBSD
-	default SWUPDATE_DEFAULT_SOCKET_NOTIFIER_DIRECTORY
+	depends on SWUPDATE_HAVE_FREEBSD
+	default "/tmp/"
 	help
-	  Path to SWUpdate's Notifier sockets on FreeBSD as
+	  Path to SWUpdate's notifier sockets on FreeBSD as
 	  Linux-like abstract sockets are not available.
 
 endmenu
 
-config SWUPDATE_CONFIG_MTD
+config SWUPDATE_MTD
 	bool "MTD support"
-	default SWUPDATE_DEFAULT_MTD
-	depends on SWUPDATE_CONFIG_HAVE_LIBMTD
+	default y
+	depends on SWUPDATE_HAVE_LINUX
+	depends on SWUPDATE_HAVE_LIBMTD
 	help
 	  Enable MTD support.
 
 comment "MTD support needs libmtd"
-	depends on !SWUPDATE_CONFIG_HAVE_LIBMTD && SWUPDATE_CONFIG_HAVE_LINUX
+	depends on !SWUPDATE_HAVE_LIBMTD && SWUPDATE_HAVE_LINUX
 
-config SWUPDATE_CONFIG_LUA
+config SWUPDATE_LUA
 	bool "lua"
-	default SWUPDATE_DEFAULT_LUA
-	depends on SWUPDATE_CONFIG_HAVE_LUA
+	default y
+	depends on SWUPDATE_HAVE_LUA
 	help
 	  Enable Lua interpreter.
 
 comment "Lua support needs a Lua interpreter"
-	depends on !SWUPDATE_CONFIG_HAVE_LUA
+	depends on !SWUPDATE_HAVE_LUA
 
-config SWUPDATE_CONFIG_LUAPKG
-	string "Lua pkg-config name"
-	default SWUPDATE_DEFAULT_LUAPKG
-	depends on SWUPDATE_CONFIG_LUA
+config SWUPDATE_LUAPKG
+	string "Lua pkg-config SWUPDATE_name"
+	default "lua"
+	depends on SWUPDATE_LUA
 	help
-	  Which pkg-config package supplies the Lua API.
+	  Which pkg-config SWUPDATE_package supplies the Lua API.
 
 # These are auto-selected by other options
 
-config SWUPDATE_CONFIG_FEATURE_SYSLOG
+config SWUPDATE_FEATURE_SYSLOG
 	bool #No description makes it a hidden option
-	default SWUPDATE_DEFAULT_FEATURE_SYSLOG
+	default n
 	#help
 	#  This option is auto-selected when you select any applet which may
 	#  send its output to syslog. You do not need to select it manually.
@@ -228,9 +303,9 @@ endmenu
 
 menu 'Build Options'
 
-config SWUPDATE_CONFIG_CROSS_COMPILE
+config SWUPDATE_CROSS_COMPILE
 	string "Cross Compiler prefix"
-	default SWUPDATE_DEFAULT_CROSS_COMPILE
+	default ""
 	help
 	  If you want to build swupdate with a cross compiler, then you
 	  will need to set this to the cross-compiler prefix, for example,
@@ -238,9 +313,9 @@ config SWUPDATE_CONFIG_CROSS_COMPILE
 
 	  Native builds leave this empty.
 
-config SWUPDATE_CONFIG_SYSROOT
+config SWUPDATE_SYSROOT
 	string "Path to sysroot"
-	default SWUPDATE_DEFAULT_SYSROOT
+	default ""
 	help
 	  If you want to build swupdate with a cross compiler, then you
 	  might also need to specify where /usr/include and /usr/lib
@@ -253,21 +328,21 @@ config SWUPDATE_CONFIG_SYSROOT
 
 	  Native builds leave this empty.
 
-config SWUPDATE_CONFIG_EXTRA_CFLAGS
+config SWUPDATE_EXTRA_CFLAGS
 	string "Additional CFLAGS"
-	default SWUPDATE_DEFAULT_EXTRA_CFLAGS
+	default ""
 	help
 	  Additional CFLAGS to pass to the compiler verbatim.
 
-config SWUPDATE_CONFIG_EXTRA_LDFLAGS
+config SWUPDATE_EXTRA_LDFLAGS
 	string "Additional LDFLAGS"
-	default SWUPDATE_DEFAULT_EXTRA_LDFLAGS
+	default ""
 	help
 	  Additional LDFLAGS to pass to the linker verbatim.
 
-config SWUPDATE_CONFIG_EXTRA_LDLIBS
+config SWUPDATE_EXTRA_LDLIBS
 	string "Additional LDLIBS"
-	default SWUPDATE_DEFAULT_EXTRA_LDLIBS
+	default ""
 	help
 	  Additional LDLIBS to pass to the linker with -l.
 
@@ -275,9 +350,9 @@ endmenu
 
 menu 'Debugging Options'
 
-config SWUPDATE_CONFIG_DEBUG
-	bool "Build Swupdate with extra Debugging symbols"
-	default SWUPDATE_DEFAULT_DEBUG
+config SWUPDATE_DEBUG
+	bool "Build SWUpdate with extra Debugging symbols"
+	default n
 	help
 	  Say Y here if you wish to examine swupdate internals while applets are
 	  running. This increases the size of the binary considerably, and
@@ -286,10 +361,10 @@ config SWUPDATE_CONFIG_DEBUG
 
 	  Most people should answer N.
 
-config SWUPDATE_CONFIG_DEBUG_PESSIMIZE
+config SWUPDATE_DEBUG_PESSIMIZE
 	bool "Disable compiler optimizations"
-	default SWUPDATE_DEFAULT_DEBUG_PESSIMIZE
-	depends on SWUPDATE_CONFIG_DEBUG
+	default n
+	depends on SWUPDATE_DEBUG
 	help
 	  The compiler's optimization of source code can eliminate and reorder
 	  code, resulting in an executable that's hard to understand when
@@ -297,17 +372,17 @@ config SWUPDATE_CONFIG_DEBUG_PESSIMIZE
 	  in a much bigger executable that more closely matches the source
 	  code.
 
-config SWUPDATE_CONFIG_WERROR
+config SWUPDATE_WERROR
 	bool "Abort compilation on any warning"
-	default SWUPDATE_DEFAULT_WERROR
+	default n
 	help
 	  Selecting this will add -Werror to gcc command line.
 
 	  Most people should answer N.
 
-config SWUPDATE_CONFIG_NOCLEANUP
+config SWUPDATE_NOCLEANUP
 	bool "Do not remove temporary files after execution"
-	default SWUPDATE_DEFAULT_NOCLEANUP
+	default n
 	help
 	  After each run, temporary files are removed from the directory
 	  pointed to by the environment variable TMPDIR (/tmp as fallback
@@ -319,105 +394,191 @@ endmenu
 
 endmenu
 
+comment "Bootloader support"
+
 source "bootloader/Config.in"
 
 
-config SWUPDATE_CONFIG_DOWNLOAD
+comment "Interfaces"
+
+config SWUPDATE_DOWNLOAD
 	bool "Enable image downloading"
-	default SWUPDATE_DEFAULT_DOWNLOAD
-	depends on SWUPDATE_CONFIG_HAVE_LIBCURL
-	select SWUPDATE_CONFIG_CHANNEL_CURL
+	default n
+	depends on SWUPDATE_HAVE_LIBCURL
 	help
 	  Enable update from image URL using libcurl. The stream is sent via IPC
 	  to the installer as it is done for other interfaces.
 
 comment "Image downloading support needs libcurl"
-	depends on !SWUPDATE_CONFIG_HAVE_LIBCURL
+	depends on !SWUPDATE_HAVE_LIBCURL
 
-config SWUPDATE_CONFIG_DOWNLOAD_SSL
+config SWUPDATE_DOWNLOAD_SSL
 	bool "Enable SSL support for image downloading"
-	default SWUPDATE_DEFAULT_DOWNLOAD_SSL
-	depends on SWUPDATE_CONFIG_DOWNLOAD
-	depends on SWUPDATE_CONFIG_HAVE_LIBSSL
-	depends on SWUPDATE_CONFIG_HAVE_LIBCRYPTO
-	select SWUPDATE_CONFIG_CHANNEL_CURL_SSL
+	default n
+	depends on SWUPDATE_DOWNLOAD
+	depends on SWUPDATE_SSL_IMPL_OPENSSL || SWUPDATE_SSL_IMPL_WOLFSSL || SWUPDATE_SSL_IMPL_MBEDTLS
+	select SWUPDATE_CHANNEL_CURL_SSL
 	help
-	  Enable SSL and checksum verification support in channels
-	  using libcurl.
+	  Enable SSL support in channels using libcurl.
 
-config SWUPDATE_CONFIG_CHANNEL_CURL
+comment "DOWNLOADING SSL support needs an SSL implementation"
+	depends on SWUPDATE_DOWNLOAD && !(SWUPDATE_SSL_IMPL_OPENSSL || SWUPDATE_SSL_IMPL_WOLFSSL || SWUPDATE_SSL_IMPL_MBEDTLS)
+
+config SWUPDATE_CHANNEL_CURL
 	bool
-	depends on SWUPDATE_CONFIG_HAVE_LIBCURL
-	select SWUPDATE_CONFIG_CURL
-
-config SWUPDATE_CONFIG_CHANNEL_CURL_SSL
-	bool
-	depends on SWUPDATE_CONFIG_CHANNEL_CURL
-	depends on SWUPDATE_CONFIG_HAVE_LIBSSL
-	depends on SWUPDATE_CONFIG_HAVE_LIBCRYPTO
-	select SWUPDATE_CONFIG_CURL_SSL
-
-config SWUPDATE_CONFIG_HASH_VERIFY
-	bool "Allow to add sha256 hash to each image"
-	depends on SWUPDATE_CONFIG_HAVE_LIBSSL
-	help
-	  Allow to add a sha256 hash to an artifact.
-	  This is automatically set in case of Signed Image
-
-comment "Hash verification needs libssl"
-	depends on !SWUPDATE_CONFIG_HAVE_LIBSSL
-
-config SWUPDATE_CONFIG_SIGNED_IMAGES
-	bool "Enable verification of signed images"
-	depends on SWUPDATE_CONFIG_HAVE_LIBSSL
-	select SWUPDATE_CONFIG_HASH_VERIFY
-comment "Image verification (signed images) needs libssl"
-	depends on !SWUPDATE_CONFIG_HAVE_LIBSSL
-
-choice
-	prompt "Signature verification algorithm"
-	depends on SWUPDATE_CONFIG_SIGNED_IMAGES
-	default SWUPDATE_CONFIG_SIGALG_RAWRSA
-	help
-	  Select if the signature algorithm for signed images is a raw RSA signature
-	  (following PKCS#1.5) or if it uses Cryptographic Message Syntax (CMS).
-
-	config SWUPDATE_CONFIG_SIGALG_RAWRSA
-		bool "RSA PKCS#1.5"
-
-	config SWUPDATE_CONFIG_SIGALG_CMS
-		bool "Cryptographic Message Syntax (CMS)"
-
-endchoice
-
-menu "CMS signature verification options"
-	depends on SWUPDATE_CONFIG_SIGALG_CMS
-
-config SWUPDATE_CONFIG_CMS_IGNORE_EXPIRED_CERTIFICATE
-	bool "Ignore expired certificates"
-	depends on SWUPDATE_CONFIG_SIGALG_CMS
-
-config SWUPDATE_CONFIG_CMS_IGNORE_CERTIFICATE_PURPOSE
-	bool "Ignore X.509 certificate purpose"
-	depends on SWUPDATE_CONFIG_SIGALG_CMS
-endmenu
-
-
-config SWUPDATE_CONFIG_ENCRYPTED_IMAGES
-	bool "Images can be encrypted with a symmetric key"
-	depends on SWUPDATE_CONFIG_HAVE_LIBSSL
-comment "Image encryption needs libssl"
-	depends on !SWUPDATE_CONFIG_HAVE_LIBSSL
+	depends on SWUPDATE_HAVE_LIBCURL
+	select SWUPDATE_CURL
 
 source "suricatta/Config.in"
 
 source "mongoose/Config.in"
 
-config SWUPDATE_CONFIG_GUNZIP
-	bool
-	depends on SWUPDATE_CONFIG_HAVE_ZLIB
-	default SWUPDATE_DEFAULT_GUNZIP
+comment "Security"
 
+choice
+	prompt "SSL implementation to use"
+	default SWUPDATE_SSL_IMPL_NONE
+	help
+	  Select SSL implementation for hashing, verifying and decrypting images.
+
+	config SWUPDATE_SSL_IMPL_NONE
+		bool "None"
+
+	config SWUPDATE_SSL_IMPL_OPENSSL
+		bool "OpenSSL"
+		depends on SWUPDATE_HAVE_LIBSSL
+
+	config SWUPDATE_SSL_IMPL_WOLFSSL
+		bool "wolfSSL (with OpenSSL compatibility layer)"
+		depends on SWUPDATE_HAVE_WOLFSSL
+		select SWUPDATE_CMS_IGNORE_CERTIFICATE_PURPOSE
+		select SWUPDATE_CMS_SKIP_UNKNOWN_SIGNERS
+
+	config SWUPDATE_SSL_IMPL_MBEDTLS
+		bool "mbedTLS"
+		depends on SWUPDATE_HAVE_MBEDTLS
+endchoice
+
+
+config SWUPDATE_CHANNEL_CURL_SSL
+	bool
+	depends on SWUPDATE_CHANNEL_CURL
+	select SWUPDATE_CURL_SSL
+
+config SWUPDATE_HASH_VERIFY
+	bool "Allow to add sha256 hash to each image"
+	depends on SWUPDATE_SSL_IMPL_OPENSSL || SWUPDATE_SSL_IMPL_WOLFSSL || SWUPDATE_SSL_IMPL_MBEDTLS
+	help
+	  Allow to add a sha256 hash to an artifact.
+	  This is automatically set in case of Signed Image
+
+comment "Hash checking needs an SSL implementation"
+	depends on !SWUPDATE_SSL_IMPL_OPENSSL && !SWUPDATE_SSL_IMPL_WOLFSSL && !SWUPDATE_SSL_IMPL_MBEDTLS
+
+config SWUPDATE_SIGNED_IMAGES
+	bool "Enable verification of signed images"
+	depends on SWUPDATE_SSL_IMPL_OPENSSL || SWUPDATE_SSL_IMPL_WOLFSSL || SWUPDATE_SSL_IMPL_MBEDTLS
+	select SWUPDATE_HASH_VERIFY
+comment "Image signature verification needs an SSL implementation"
+	depends on !SWUPDATE_SSL_IMPL_OPENSSL && !SWUPDATE_SSL_IMPL_WOLFSSL && !SWUPDATE_SSL_IMPL_MBEDTLS
+
+choice
+	prompt "Signature verification algorithm"
+	depends on SWUPDATE_SIGNED_IMAGES
+	default SWUPDATE_SIGALG_RAWRSA
+	help
+	  Select if the signature algorithm for signed images is a raw RSA signature
+	  (following PKCS#1.5) or if it uses Cryptographic Message Syntax (CMS) with
+	  OpenSSL/LibreSSL or PKCS#7 with wolfSSL.
+	  wolfSSL's PKCS#7 implementation can only deal with one signature and cannot
+	  deal with X509 purposes.
+
+	config SWUPDATE_SIGALG_RAWRSA
+		bool "RSA PKCS#1.5"
+
+	config SWUPDATE_SIGALG_RSAPSS
+		bool "RSA PSS"
+
+	config SWUPDATE_SIGALG_CMS
+		bool "Cryptographic Message Syntax (CMS) / PKCS#7"
+		depends on SWUPDATE_SSL_IMPL_OPENSSL || SWUPDATE_SSL_IMPL_WOLFSSL
+
+	config SWUPDATE_SIGALG_GPG
+		bool "GPG signing"
+endchoice
+
+menu "CMS / PKCS#7 signature verification options"
+	depends on SWUPDATE_SIGALG_CMS
+
+config SWUPDATE_CMS_IGNORE_EXPIRED_CERTIFICATE
+	bool "Ignore expired certificates"
+	depends on SWUPDATE_SIGALG_CMS
+
+config SWUPDATE_CMS_IGNORE_CERTIFICATE_PURPOSE
+	bool "Ignore X.509 certificate purpose"
+	depends on SWUPDATE_SIGALG_CMS
+
+config SWUPDATE_CMS_SKIP_UNKNOWN_SIGNERS
+	bool "Ignore unverifiable signatures if known signer verifies"
+	depends on SWUPDATE_SIGALG_CMS
+endmenu
+
+
+config SWUPDATE_ENCRYPTED_IMAGES
+	bool "Images can be encrypted with a symmetric key"
+	depends on SWUPDATE_SSL_IMPL_OPENSSL || SWUPDATE_SSL_IMPL_WOLFSSL || SWUPDATE_SSL_IMPL_MBEDTLS
+comment "Image encryption needs an SSL implementation"
+	depends on !SWUPDATE_SSL_IMPL_OPENSSL && !SWUPDATE_SSL_IMPL_WOLFSSL && !SWUPDATE_SSL_IMPL_MBEDTLS
+
+config SWUPDATE_ENCRYPTED_SW_DESCRIPTION
+	bool "Even sw-description is encrypted"
+	depends on SWUPDATE_ENCRYPTED_IMAGES
+	help
+	  sw-description is not encrypted as default, but it is encrypted
+	  if this is set. It is a compile time option, and mix of plain and
+	  encrypted sw-descriptions is not possible.
+
+config SWUPDATE_ENCRYPTED_IMAGES_HARDEN_LOGGING
+	bool "Harden logging for encrypted images"
+	default n
+	depends on SWUPDATE_ENCRYPTED_IMAGES
+	help
+	  This option addresses a theoretical weakness of the AES-CBC encryption in
+	  combination with streamed images. An adversary can target each 16-byte
+	  block of encrypted data within an image and decrypt it, if they can apply a
+	  huge amount of manipulated firmware updates and observe the logged
+	  messages. On average, 2048 update attempts are needed for each block.
+	  Select if this scenario poses a risk. If set, log messages related to a
+	  hash mismatch and errors in the decryption finalization (padding) of a
+	  streamed image are suppressed.
+
+config SWUPDATE_PKCS11
+	bool "Enable PKCS#11 cryptographic operations"
+	default n
+	depends on SWUPDATE_HAVE_WOLFSSL && SWUPDATE_HAVE_P11KIT && SWUPDATE_ENCRYPTED_IMAGES
+	help
+	  Enable using PKCS#11 for AES decryption instead of having the plain
+	  key available in a file. This is implemented with wolfSSL independent
+	  from the SSL implementation and replaces the plain key method.
+
+comment "Compressors (zlib always on)"
+
+config SWUPDATE_GUNZIP
+	bool
+	depends on SWUPDATE_HAVE_ZLIB
+	default y
+
+config SWUPDATE_ZSTD
+	bool "Zstd compression support"
+	depends on SWUPDATE_HAVE_ZSTD
+
+comment "Parsers"
 source "parser/Config.in"
+
+comment "Handlers"
 source "handlers/Config.in"
-source "reduce/Config.in"
+
+comment "Containers"
+source "containers/Config.in"
+
+endmenu

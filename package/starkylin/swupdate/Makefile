@@ -1,14 +1,13 @@
 #
 #Copyright (c) 2018-2020 Allwinner Technology Co. Ltd.
 #
-#   +SWUPDATE_$(SWUPDATE_SYM)_AWBOOT_HANDLER:ota-burnboot \
 
 include $(TOPDIR)/rules.mk
 include $(INCLUDE_DIR)/kernel.mk
 
 PKG_NAME:=swupdate
 PKG_DISTNAME:=swupdate
-PKG_VERSION:=2019.04
+PKG_VERSION:=2023.12
 PKG_RELEASE:=1
 
 PKG_SOURCE_PROTO:=git
@@ -16,44 +15,83 @@ PKG_SOURCE:=$(PKG_DISTNAME)-$(PKG_VERSION).tar.xz
 PKG_SOURCE_SUBDIR:=$(PKG_DISTNAME)-$(PKG_VERSION)
 PKG_BUILD_DIR := $(BUILD_DIR)/$(PKG_NAME)-$(PKG_VERSION)
 PKG_SOURCE_URL:=https://github.com/sbabic/swupdate.git
-PKG_SOURCE_VERSION:=d39f4b8e00ef1929545b66158e45b82ea922bf81
+PKG_SOURCE_VERSION:=2042e6dc0f5466bd428f4db18eaff638203150ad
 
 SWUPDATE_SYM=$(if $(CONFIG_SWUPDATE_CUSTOM),CONFIG,DEFAULT)
 SWUPDATE_IF_ENABLED=$(if $(CONFIG_SWUPDATE_$(SWUPDATE_SYM)_$(1)),$(2))
 
-PKG_BUILD_DEPENDS:=\
-  zlib \
-  +SWUPDATE_$(SWUPDATE_SYM)_LIBCONFIG:libconfig \
-  +SWUPDATE_$(SWUPDATE_SYM)_CURL:curl \
-  +SWUPDATE_$(SWUPDATE_SYM)_UBOOT:uboot-envtools \
-  +SWUPDATE_$(SWUPDATE_SYM)_HASH_VERIFY:libopenssl \
-  +SWUPDATE_$(SWUPDATE_SYM)_RDIFFHANDLER:librsync
 # +SWUPDATE_$(SWUPDATE_SYM)_MTD:mtd-utils \
 # +SWUPDATE_$(SWUPDATE_SYM)_AWBOOT_HANDLER:ota-burnboot \
 
 TARGET_CFLAGS += -I$(STAGING_DIR)/usr/include
 TARGET_CFLAGS += -I$(STAGING_DIR)/include
+TARGET_LDFLAGS += -L$(STAGING_DIR)/usr/lib
+TARGET_LDLIBS += z yaml json-c
+
+ifeq ($(CONFIG_SWUPDATE_LIBCONFIG),y)
+  TARGET_LDLIBS += config
+endif
+
+ifeq ($(CONFIG_SWUPDATE_UBOOT),y)
+  TARGET_LDLIBS += ubootenv
+endif
+
+ifeq ($(CONFIG_SWUPDATE_CHANNEL_CURL),y)
+  TARGET_LDLIBS += curl
+else ifeq ($(CONFIG_SWUPDATE_DOCKER),y)
+  TARGET_LDLIBS += curl
+else ifeq ($(CONFIG_SWUPDATE_SWUFORWARDER_HANDLER),y)
+  TARGET_LDLIBS += curl
+endif
+
+ifeq ($(CONFIG_SWUPDATE_SSL_IMPL_OPENSSL),y)
+  TARGET_LDLIBS += ssl
+  TARGET_LDLIBS += crypto
+endif
+
+ifeq ($(CONFIG_SWUPDATE_DOWNLOAD),y)
+  TARGET_LDLIBS += curl
+endif
+
+ifeq ($(CONFIG_SWUPDATE_SURICATTA),y)
+  TARGET_LDLIBS += curl
+endif
+
+ifeq ($(CONFIG_SWUPDATE_RDIFFHANDLER),y)
+  TARGET_LDLIBS += rsync
+endif
+
+ifeq ($(CONFIG_SWUPDATE_DELTA),y)
+  TARGET_LDLIBS += zck
+  TARGET_LDLIBS += zstd
+  TARGET_LDLIBS += curl
+endif
+
+ifeq ($(CONFIG_SWUPDATE_ZSTD),y)
+  TARGET_LDLIBS += zstd
+endif
 
 include $(INCLUDE_DIR)/package.mk
-
-ifeq ($(DUMP),)
-  STAMP_CONFIGURED:=$(strip $(STAMP_CONFIGURED))_$(shell $(SH_FUNC) grep '^CONFIG_SWUPDATE_' $(TOPDIR)/.config | md5s)
-endif
 
 define Package/$(PKG_NAME)
   SECTION:=utils
   CATEGORY:=Starkylin embedded
   TITLE:=software update for embedded system
   DEFAULT:=y if TARGET_bcm27xx
-  DEPENDS:=\
-	+zlib \
-	+SWUPDATE_$(SWUPDATE_SYM)_LIBCONFIG:libconfig \
-	+SWUPDATE_$(SWUPDATE_SYM)_CURL:curl \
-	+SWUPDATE_$(SWUPDATE_SYM)_UBOOT:uboot-envtools \
-	+SWUPDATE_CONFIG_SURICATTA_HAWKBIT:libjson-c \
-	+SWUPDATE_$(SWUPDATE_SYM)_HASH_VERIFY:libopenssl \
-	+SWUPDATE_$(SWUPDATE_SYM)_RDIFFHANDLER:librsync \
-
+  DEPENDS:=+zlib +libjson-c \
+  +SWUPDATE_LIBCONFIG:libconfig \
+  +SWUPDATE_UBOOT:libubootenv \
+  +SWUPDATE_DOWNLOAD:curl \
+  +SWUPDATE_CHANNEL_CURL:curl \
+  +SWUPDATE_DOCKER:curl \
+  +SWUPDATE_DELTA:curl \
+  +SWUPDATE_SWUFORWARDER_HANDLER:curl \
+  +SWUPDATE_SURICATTA:curl \
+  +SWUPDATE_SSL_IMPL_OPENSSL:libopenssl \
+  +SWUPDATE_RDIFFHANDLER:librsync \
+  +SWUPDATE_DELTA:zchunk \
+  +SWUPDATE_DELTA:zstd \
+  +SWUPDATE_ZSTD:zstd
   MENU:=1
 endef
 
@@ -66,10 +104,18 @@ define Package/$(PKG_NAME)/config
 	source "$(SOURCE)/Config.in"
 endef
 
+# yes 'n' | $(MAKE) -C $(PKG_BUILD_DIR) $(MAKE_FLAGS) oldconfig
+# grep 'CONFIG_SWUPDATE_$(SWUPDATE_SYM)' $(TOPDIR)/.config | sed -e "s,\\(# \)\\?CONFIG_SWUPDATE_$(SWUPDATE_SYM)_\\(.*\\),\\1CONFIG_\\2,g" >> $(PKG_BUILD_DIR)/.config
 define Build/Configure
-	rm -f $(PKG_BUILD_DIR)/.configured*
-	grep 'CONFIG_SWUPDATE_$(SWUPDATE_SYM)' $(TOPDIR)/.config | sed -e "s,\\(# \)\\?CONFIG_SWUPDATE_$(SWUPDATE_SYM)_\\(.*\\),\\1CONFIG_\\2,g" > $(PKG_BUILD_DIR)/.config
-	yes 'n' | $(MAKE) -C $(PKG_BUILD_DIR) $(MAKE_FLAGS) oldconfig
+
+ifeq ($(CONFIG_SWUPDATE_CUSTOM),y)
+	$(CP) swupdate.config $(PKG_BUILD_DIR)/.config
+	grep 'CONFIG_SWUPDATE' $(TOPDIR)/.config | sed -e "s,\\(# \)\\?CONFIG_SWUPDATE_\\(.*\\),\\1CONFIG_\\2,g" >> $(PKG_BUILD_DIR)/.config
+	cat $(PKG_BUILD_DIR)/.config
+else
+	$(CP) swupdate.config $(PKG_BUILD_DIR)/.config
+endif
+
 endef
 
 define Build/Compile
@@ -81,13 +127,13 @@ define Build/Compile
 		CFLAGS="$(TARGET_CFLAGS)" \
 		LD="$(TARGET_CC)" \
 		LDFLAGS="$(TARGET_LDFLAGS)" \
+		LDLIBS="$(TARGET_LDLIBS)" \
 		DESTDIR="$(PKG_INSTALL_DIR)" \
 		CONFIG_PREFIX="$(PKG_INSTALL_DIR)" \
 		install
 endef
 
 define Package/$(PKG_NAME)/install
-	$(INSTALL_DIR) $(1)/usr/bin
 	$(INSTALL_DIR) $(1)/etc/init.d
 	$(INSTALL_DIR) $(1)/etc/swupdate
 	$(INSTALL_DIR) $(1)/www
@@ -95,19 +141,25 @@ define Package/$(PKG_NAME)/install
 	$(CP) -r ./var/www/swupdate $(1)/www/
 	$(INSTALL_DIR) $(1)/sbin
 	$(INSTALL_BIN) $(PKG_INSTALL_DIR)/usr/bin/swupdate $(1)/sbin
-ifeq ($(CONFIG_SWUPDATE_CONFIG_REMOVE_PROGRESS),)
-	$(INSTALL_BIN) $(PKG_INSTALL_DIR)/usr/bin/progress $(1)/sbin
-endif
-ifeq ($(CONFIG_SWUPDATE_CONFIG_REMOVE_CLIENT),)
-	$(INSTALL_BIN) $(PKG_INSTALL_DIR)/usr/bin/client $(1)/sbin
-endif
 
-ifneq ($(CONFIG_SWUPDATE_CONFIG_SURICATTA_HAWKBIT),)
+	$(INSTALL_DIR) $(1)/usr/lib/
+	$(CP) $(PKG_INSTALL_DIR)/usr/lib/libswupdate.so* $(1)/usr/lib/
+
+ifneq ($(CONFIG_SWUPDATE_SURICATTA_HAWKBIT),)
 	$(INSTALL_BIN) $(PKG_INSTALL_DIR)/usr/bin/hawkbitcfg $(1)/sbin
 	$(INSTALL_BIN) $(PKG_INSTALL_DIR)/usr/bin/sendtohawkbit $(1)/sbin
 endif
 
+ifeq ($(CONFIG_SWUPDATE_CONFIG_REMOVE_PROGRESS),)
+########################## Reduce Size - progress
+	$(INSTALL_BIN) $(PKG_INSTALL_DIR)/usr/bin/swupdate-progress $(1)/sbin
+endif
+ifeq ($(CONFIG_SWUPDATE_CONFIG_REMOVE_CLIENT),)
+########################## Reduce Size - client
+	$(INSTALL_BIN) $(PKG_INSTALL_DIR)/usr/bin/swupdate-client $(1)/sbin
+endif
 ifeq ($(CONFIG_SWUPDATE_CONFIG_REMOVE_AUTORUN),)
+########################## Reduce Size - autorun
 	$(INSTALL_BIN) ./swupdate_autorun.init $(1)/etc/init.d/S99swupdate_autorun
 	$(INSTALL_BIN) ./S80swupdate $(1)/etc/init.d/S80swupdate
 	$(INSTALL_BIN) ./swupdate_cmd.sh $(1)/sbin
