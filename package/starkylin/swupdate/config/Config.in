@@ -21,7 +21,7 @@ config SWUPDATE_HAVE_FREEBSD
 
 config SWUPDATE_HAVE_LUA
 	bool
-	default n
+	default y
 	#option env="HAVE_LUA"
 
 config SWUPDATE_HAVE_LIBCONFIG
@@ -31,7 +31,7 @@ config SWUPDATE_HAVE_LIBCONFIG
 
 config SWUPDATE_HAVE_LIBARCHIVE
 	bool
-	default n
+	default y
 	#option env="HAVE_LIBARCHIVE"
 
 config SWUPDATE_HAVE_LIBCURL
@@ -41,27 +41,27 @@ config SWUPDATE_HAVE_LIBCURL
 
 config SWUPDATE_HAVE_LIBFDISK
 	bool
-	default n
+	default y
 	#option env="HAVE_LIBFDISK"
 
 config SWUPDATE_HAVE_LIBBLKID
 	bool
-	default n
+	default y
 	#option env="HAVE_LIBBLKID"
 
 config SWUPDATE_HAVE_LIBGPIOD
 	bool
-	default n
+	default y
 	#option env="HAVE_LIBGPIOD"
 
 config SWUPDATE_HAVE_LIBMTD
 	bool
-	default n
+	default y
 	#option env="HAVE_LIBMTD"
 
 config SWUPDATE_HAVE_LIBUBI
 	bool
-	default n
+	default y
 	#option env="HAVE_LIBUBI"
 
 config SWUPDATE_HAVE_LIBUBOOTENV
@@ -71,28 +71,31 @@ config SWUPDATE_HAVE_LIBUBOOTENV
 
 config SWUPDATE_HAVE_LIBEBGENV
 	bool
-	default n
+	default y
 	#option env="HAVE_LIBEBGENV"
+	#not add lib
 
 config SWUPDATE_HAVE_LIBTEGRABOOT_TOOLS
 	bool
-	default n
+	default y
 	#option env="HAVE_LIBTEGRABOOT_TOOLS"
+	#not add lib
 
 config SWUPDATE_HAVE_LIBEXT2FS
 	bool
-	default n
+	default y
 	#option env="HAVE_LIBEXT2FS"
 
 config SWUPDATE_HAVE_LIBBTRFS
 	bool
-	default n
+	default y
 	#option env="HAVE_LIBBTRFS"
 
 config SWUPDATE_HAVE_LIBZEROMQ
 	bool
-	default n
+	default y
 	#option env="HAVE_LIBZEROMQ"
+	#not add lib
 
 config SWUPDATE_HAVE_ZLIB
 	bool
@@ -111,7 +114,7 @@ config SWUPDATE_HAVE_LIBSSL
 
 config SWUPDATE_HAVE_LIBSYSTEMD
 	bool
-	default n
+	default y
 	#option env="HAVE_LIBSYSTEMD"
 
 config SWUPDATE_HAVE_LIBCRYPTO
@@ -121,18 +124,21 @@ config SWUPDATE_HAVE_LIBCRYPTO
 
 config SWUPDATE_HAVE_WOLFSSL
 	bool
-	default n
+	default y
 	#option env="HAVE_WOLFSSL"
+	#not add lib
 
 config SWUPDATE_HAVE_MBEDTLS
 	bool
-	default n
+	default y
 	#option env="HAVE_MBEDTLS"
+	#not add lib
 
 config SWUPDATE_HAVE_P11KIT
 	bool
-	default n
+	default y
 	#option env="HAVE_P11KIT"
+	#not add lib
 
 config SWUPDATE_HAVE_LIBWEBSOCKETS
 	bool
@@ -264,7 +270,7 @@ endmenu
 
 config SWUPDATE_MTD
 	bool "MTD support"
-	default y
+	default n
 	depends on SWUPDATE_HAVE_LINUX
 	depends on SWUPDATE_HAVE_LIBMTD
 	help
@@ -275,7 +281,7 @@ comment "MTD support needs libmtd"
 
 config SWUPDATE_LUA
 	bool "lua"
-	default y
+	default n
 	depends on SWUPDATE_HAVE_LUA
 	help
 	  Enable Lua interpreter.

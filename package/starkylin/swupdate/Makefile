@@ -23,15 +23,8 @@ SWUPDATE_IF_ENABLED=$(if $(CONFIG_SWUPDATE_$(SWUPDATE_SYM)_$(1)),$(2))
 TARGET_CFLAGS += -I$(STAGING_DIR)/usr/include
 TARGET_CFLAGS += -I$(STAGING_DIR)/include
 TARGET_LDFLAGS += -L$(STAGING_DIR)/usr/lib
-TARGET_LDLIBS += z yaml json-c
-
-ifeq ($(CONFIG_SWUPDATE_LIBCONFIG),y)
-  TARGET_LDLIBS += config
-endif
-
-ifeq ($(CONFIG_SWUPDATE_UBOOT),y)
-  TARGET_LDLIBS += ubootenv
-endif
+# always compiled
+TARGET_LDLIBS += z yaml json-c config ubootenv
 
 ifeq ($(CONFIG_SWUPDATE_CHANNEL_CURL),y)
   TARGET_LDLIBS += curl
@@ -40,8 +33,7 @@ else ifeq ($(CONFIG_SWUPDATE_DOCKER),y)
 endif
 
 ifeq ($(CONFIG_SWUPDATE_SSL_IMPL_OPENSSL),y)
-  TARGET_LDLIBS += ssl
-  TARGET_LDLIBS += crypto
+  TARGET_LDLIBS += ssl crypto
 endif
 
 ifeq ($(CONFIG_SWUPDATE_DOWNLOAD),y)
@@ -57,9 +49,7 @@ ifeq ($(CONFIG_SWUPDATE_RDIFFHANDLER),y)
 endif
 
 ifeq ($(CONFIG_SWUPDATE_DELTA),y)
-  TARGET_LDLIBS += zck
-  TARGET_LDLIBS += zstd
-  TARGET_LDLIBS += curl
+  TARGET_LDLIBS += zck zstd curl
 endif
 
 ifeq ($(CONFIG_SWUPDATE_ZSTD),y)
@@ -67,9 +57,47 @@ ifeq ($(CONFIG_SWUPDATE_ZSTD),y)
 endif
 
 ifeq ($(CONFIG_SWUPDATE_SWUFORWARDER_HANDLER),y)
-  TARGET_LDLIBS += curl
-  TARGET_LDLIBS += websockets
-  TARGET_LDLIBS += uriparser
+  TARGET_LDLIBS += curl websockets uriparser
+endif
+
+ifeq ($(CONFIG_SWUPDATE_LUA),y)
+  TARGET_LDLIBS += lua
+endif
+
+ifeq ($(CONFIG_SWUPDATE_SURICATTA_LUA),y)
+  TARGET_LDLIBS += lua
+endif
+
+ifeq ($(CONFIG_SWUPDATE_ARCHIVE),y)
+  TARGET_LDLIBS += archive
+endif
+
+ifeq ($(CONFIG_SWUPDATE_DISKPART),y)
+  TARGET_LDLIBS += fdisk
+endif
+
+ifeq ($(CONFIG_SWUPDATE_DISKPART_FORMAT),y)
+  TARGET_LDLIBS += blkid
+endif
+
+ifeq ($(SWUPDATE_DISKFORMAT_HANDLER),y)
+  TARGET_LDLIBS += blkid
+endif
+
+ifeq ($(CONFIG_SWUPDATE_UNIQUEUUID),y)
+  TARGET_LDLIBS += blkid
+endif
+
+ifeq ($(CONFIG_SWUPDATE_EXT_FILESYSTEM),y)
+  TARGET_LDLIBS += ext2fs uuid blkid ss com_err
+endif
+
+ifeq ($(CONFIG_SWUPDATE_BTRFS_FILESYSTEM),y)
+  TARGET_LDLIBS += btrfs btrfsutil
+endif
+
+ifeq ($(CONFIG_SWUPDATE_BTRFS_FILESYSTEM_USELIBMKFS),y)
+  TARGET_LDLIBS += btrfs btrfsutil
 endif
 
 include $(INCLUDE_DIR)/package.mk
@@ -79,14 +107,12 @@ define Package/$(PKG_NAME)
   CATEGORY:=Starkylin embedded
   TITLE:=software update for embedded system
   DEFAULT:=y if TARGET_bcm27xx
-  DEPENDS:=+zlib +libjson-c \
-  +SWUPDATE_LIBCONFIG:libconfig \
-  +SWUPDATE_UBOOT:libubootenv \
+  DEPENDS:=+zlib +libjson-c libconfig libubootenv \
   +SWUPDATE_DOWNLOAD:curl \
   +SWUPDATE_CHANNEL_CURL:curl \
   +SWUPDATE_DOCKER:curl \
   +SWUPDATE_DELTA:curl \
-  +SWUPDATE_SURICATTA:curl \
+  +SWUPDATE_SURICATTA:curl \n
   +SWUPDATE_SSL_IMPL_OPENSSL:libopenssl \
   +SWUPDATE_RDIFFHANDLER:librsync \
   +SWUPDATE_DELTA:zchunk \
@@ -95,6 +121,16 @@ define Package/$(PKG_NAME)
   +SWUPDATE_SWUFORWARDER_HANDLER:curl \
   +SWUPDATE_SWUFORWARDER_HANDLER:libwebsockets \
   +SWUPDATE_SWUFORWARDER_HANDLER:liburiparser \
+  +SWUPDATE_LUA:lua \
+  +SWUPDATE_SURICATTA_LUA:lua \
+  +SWUPDATE_ARCHIVE:libarchive \
+  +SWUPDATE_DISKPART:libfdisk \
+  +SWUPDATE_DISKPART_FORMAT:libblkid \
+  +SWUPDATE_DISKFORMAT_HANDLER:libblkid \
+  +SWUPDATE_UNIQUEUUID:libblkid \
+  +SWUPDATE_EXT_FILESYSTEM:libext2fs \
+  +SWUPDATE_BTRFS_FILESYSTEM:btrfs-progs \
+  +SWUPDATE_BTRFS_FILESYSTEM_USELIBMKFS:btrfs-progs
   MENU:=1
 endef
 
@@ -112,10 +148,10 @@ endef
 
 # yes 'n' | $(MAKE) -C $(PKG_BUILD_DIR) $(MAKE_FLAGS) oldconfig
 # grep 'CONFIG_SWUPDATE_$(SWUPDATE_SYM)' $(TOPDIR)/.config | sed -e "s,\\(# \)\\?CONFIG_SWUPDATE_$(SWUPDATE_SYM)_\\(.*\\),\\1CONFIG_\\2,g" >> $(PKG_BUILD_DIR)/.config
+# $(CP) swupdate.config $(PKG_BUILD_DIR)/.config
 define Build/Configure
 
 ifeq ($(CONFIG_SWUPDATE_CUSTOM),y)
-	$(CP) swupdate.config $(PKG_BUILD_DIR)/.config
 	grep 'CONFIG_SWUPDATE' $(TOPDIR)/.config | sed -e "s,\\(# \)\\?CONFIG_SWUPDATE_\\(.*\\),\\1CONFIG_\\2,g" >> $(PKG_BUILD_DIR)/.config
 	cat $(PKG_BUILD_DIR)/.config
 else

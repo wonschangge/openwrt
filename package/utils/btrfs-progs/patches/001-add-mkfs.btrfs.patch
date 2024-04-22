@@ -1,0 +1,98 @@
+diff --git a/Makefile b/Makefile
+index 5dfd3c0..8ea0cfe 100644
+--- a/Makefile
++++ b/Makefile
+@@ -261,13 +261,14 @@ libbtrfsutil_objects = libbtrfsutil/errors.o libbtrfsutil/filesystem.o \
+ convert_objects = convert/main.o convert/common.o convert/source-fs.o \
+ 		  convert/source-ext2.o convert/source-reiserfs.o \
+ 		  mkfs/common.o check/clear-cache.o
+-mkfs_objects = mkfs/main.o mkfs/common.o mkfs/rootdir.o
++mkfs_objects = mkfs/common.o mkfs/rootdir.o
++mkfsmain_objects = mkfs/main.o
+ image_objects = image/main.o image/sanitize.o image/image-create.o image/common.o \
+ 		image/image-restore.o
+ tune_objects = tune/main.o tune/seeding.o tune/change-uuid.o tune/change-metadata-uuid.o \
+ 	       tune/convert-bgt.o tune/change-csum.o check/clear-cache.o
+ all_objects = $(objects) $(cmds_objects) $(libbtrfs_objects) $(convert_objects) \
+-	      $(mkfs_objects) $(image_objects) $(tune_objects) $(libbtrfsutil_objects)
++	      $(mkfs_objects) $(mkfsmain_objects) $(image_objects) $(tune_objects) $(libbtrfsutil_objects)
+ 
+ udev_rules = 64-btrfs-dm.rules 64-btrfs-zoned.rules
+ 
+@@ -340,9 +341,9 @@ MAKEOPTS = --no-print-directory Q=$(Q)
+ progs_box_main = btrfs.o mkfs/main.o image/main.o convert/main.o \
+ 		 tune/main.o btrfs-find-root.o
+ 
+-progs_box_all_objects = $(mkfs_objects) $(image_objects) $(convert_objects) $(tune_objects)
+-progs_box_all_static_objects = $(static_mkfs_objects) $(static_image_objects) \
+-			       $(static_convert_objects) $(static_tune_objects)
++progs_box_all_objects = $(mkfs_objects) $(mkfsmain_objects) $(image_objects) $(convert_objects) $(tune_objects)
++progs_box_all_static_objects = $(static_mkfs_objects) $(static_mkfsmain_objects) $(static_image_objects) \
++ 			       $(static_convert_objects) $(static_tune_objects)
+ 
+ progs_box_objects = $(filter-out %/main.o, $(progs_box_all_objects)) \
+ 		    $(patsubst %.o, %.box.o, $(progs_box_main))
+@@ -423,17 +424,18 @@ static_libbtrfs_objects = $(patsubst %.o, %.static.o, $(shared_objects))
+ static_libbtrfsutil_objects = $(patsubst %.o, %.static.o, $(libbtrfsutil_objects))
+ static_convert_objects = $(patsubst %.o, %.static.o, $(convert_objects))
+ static_mkfs_objects = $(patsubst %.o, %.static.o, $(mkfs_objects))
++static_mkfsmain_objects = $(patsubst %.o, %.static.o, $(mkfsmain_objects))
+ static_image_objects = $(patsubst %.o, %.static.o, $(image_objects))
+ static_tune_objects = $(patsubst %.o, %.static.o, $(tune_objects))
+ 
+-libs_shared = libbtrfs.so.0.1 libbtrfsutil.so.$(libbtrfsutil_version)
++libs_shared = libbtrfs.so.0.1 libbtrfsutil.so.$(libbtrfsutil_version) # libmkfsbtrfs.so.0.1
+ lib_links = libbtrfs.so.0 libbtrfs.so libbtrfsutil.so.$(libbtrfsutil_major) libbtrfsutil.so
+ libs_build =
+ ifeq ($(BUILD_SHARED_LIBRARIES),1)
+ libs_build += $(libs_shared) $(lib_links)
+ endif
+ ifeq ($(BUILD_STATIC_LIBRARIES),1)
+-libs_build += libbtrfs.a libbtrfsutil.a
++libs_build += libbtrfs.a libbtrfsutil.a libmkfsbtrfs.a
+ endif
+ 
+ # make C=1 to enable sparse
+@@ -582,7 +584,7 @@ endif
+ # NOTE: For static compiles, you need to have all the required libs
+ # 	static equivalent available
+ #
+-static: $(progs_static) libbtrfs.a libbtrfsutil.a
++static: $(progs_static) libbtrfs.a libbtrfsutil.a libmkfsbtrfs.a
+ 
+ libbtrfs/version.h: libbtrfs/version.h.in configure.ac
+ 	@echo "    [SH]     $@"
+@@ -611,6 +613,19 @@ libbtrfs.so.0 libbtrfs.so: libbtrfs.so.0.1 libbtrfs/libbtrfs.sym
+ 	@echo "    [LN]     $@"
+ 	$(Q)$(LN_S) -f $< $@
+ 
++libmkfsbtrfs.so.0.1: $(mkfs_objects) $(objects) libmkfsbtrfs/libmkfsbtrfs.sym
++	@echo "    [LD]     $@"
++	$(Q)$(CC) $(CFLAGS) $(filter %.o,$^) $(LDFLAGS) $(mkfs_objects) \
++		-shared -Wl,-soname,libbtrfs.so.0 -Wl,--version-script=libmkfsbtrfs/libmkfsbtrfs.sym -o $@
++
++libmkfsbtrfs.a: $(mkfs_objects) $(objects) mkfs/main.box.o
++	@echo "    [AR]     $@"
++	$(Q)$(AR) cr $@ $^ $(objects)
++
++libmkfsbtrfs.so.0 libmkfsbtrfs.so: libmkfsbtrfs.so.0.1 libmkfsbtrfs/libmkfsbtrfs.sym
++	@echo "    [LN]     $@"
++	$(Q)$(LN_S) -f $< $@
++
+ libbtrfsutil/%.o: libbtrfsutil/%.c
+ 	@echo "    [CC]     $@"
+ 	$(Q)$(CC) $(LIBBTRFSUTIL_CFLAGS) -o $@ -c $< -o $@
+@@ -698,11 +713,11 @@ btrfsck.static: btrfs.static
+ 	@echo "    [LN]     $@"
+ 	$(Q)$(LN_S) -f $^ $@
+ 
+-mkfs.btrfs: $(mkfs_objects) $(objects) libbtrfsutil.a
++mkfs.btrfs: $(mkfs_objects) $(mkfsmain_objects) $(objects) libbtrfsutil.a
+ 	@echo "    [LD]     $@"
+ 	$(Q)$(CC) -o $@ $^ $(LDFLAGS) $(LIBS)
+ 
+-mkfs.btrfs.static: $(static_mkfs_objects) $(static_objects) $(static_libbtrfs_objects)
++mkfs.btrfs.static: $(static_mkfs_objects) $(mkfsmain_objects) $(static_objects) $(static_libbtrfs_objects)
+ 	@echo "    [LD]     $@"
+ 	$(Q)$(CC) -o $@ $^ $(STATIC_LDFLAGS) $(STATIC_LIBS)
+ 

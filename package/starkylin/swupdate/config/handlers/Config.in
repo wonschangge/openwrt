@@ -93,18 +93,26 @@ comment "diskpart support needs libfdisk"
 config SWUPDATE_DISKPART_FORMAT
 	bool "diskpart extension for creating file systems"
 	depends on SWUPDATE_DISKPART
+	depends on SWUPDATE_HAVE_LIBBLKID
 	select SWUPDATE_DISKFORMAT
 	default n
 	help
 	  This extension allows formatting newly created partitions.
 
+comment "diskpart format support needs libblkid"
+	depends on !SWUPDATE_HAVE_LIBBLKID
+
 config SWUPDATE_DISKFORMAT_HANDLER
 	bool "diskformat handler for creating file systems"
 	select SWUPDATE_DISKFORMAT
+	depends on SWUPDATE_HAVE_LIBBLKID
 	default n
 	help
 	  The diskformat handler allows creating filesystems on empty
 	  partitions.
+
+comment "diskformat handler support needs libblkid"
+	depends on !SWUPDATE_HAVE_LIBBLKID
 
 source "../fs/Config.in"
 

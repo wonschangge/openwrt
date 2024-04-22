@@ -1,0 +1,14 @@
+libbtrfs
+
+
+libgpiod
+libmtd
+libubi
+libebgenv
+libtegraboot_tools
+
+libzeromq
+libsystemd
+wolfSSL
+mbedtls
+p11kit
