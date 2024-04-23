@@ -65,6 +65,16 @@ CONFIGURE_ARGS += \
 	--without-zstd \
 	--without-lzo
 
+define Build/InstallDev
+	$(INSTALL_DIR) $(1)/usr/include
+	$(INSTALL_DIR) $(1)/usr/lib
+	$(CP) $(PKG_BUILD_DIR)/include/libmtd.h $(STAGING_DIR)/usr/include/
+	$(CP) $(PKG_BUILD_DIR)/include/libubi.h $(STAGING_DIR)/usr/include/
+	$(CP) -r $(PKG_BUILD_DIR)/include/mtd/ $(STAGING_DIR)/usr/include/
+	$(CP) $(PKG_BUILD_DIR)/libmtd.a $(STAGING_DIR)/usr/lib/
+	$(CP) $(PKG_BUILD_DIR)/libubi.a $(STAGING_DIR)/usr/lib/
+endef
+
 define Package/ubi-utils/install
 	$(INSTALL_DIR) $(1)/usr/sbin
 	$(INSTALL_BIN) \
