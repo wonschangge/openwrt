@@ -1,4 +1,10 @@
 # Put your custom commands here that should be executed once
 # the system init finished. By default this file does nothing.
 
+echo 3 > /proc/sys/vm/drop_caches
+
+if [ -e /sbin/boot_times.sh ]; then
+        /sbin/boot_times.sh  &
+fi
+
 exit 0

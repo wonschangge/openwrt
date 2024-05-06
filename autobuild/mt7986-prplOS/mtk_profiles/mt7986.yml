@@ -1,0 +1,12 @@
+---
+profiles:
+ - mt7986b-ax6000-spim-nand-rfb
+ - mt7986b-ax6000-2500wan-spim-nand-rfb
+target: mediatek
+subtarget: mt7986
+description: Build image for the Mediatek MT7986
+packages:
+  - kmod-mt7915e
+  - kmod-mt7615e
+  - mt76-vendor
+  - getopt

@@ -1,0 +1,35 @@
+diff --git a/feeds/feed_prpl/network/libs/libfwinterface/Makefile b/feeds/feed_prpl/network/libs/libfwinterface/Makefile
+index bd66a74..d208920 100644
+--- a/feeds/feed_prpl/network/libs/libfwinterface/Makefile
++++ b/feeds/feed_prpl/network/libs/libfwinterface/Makefile
+@@ -46,7 +46,6 @@ define Package/$(PKG_NAME)
+   DEPENDS += +kmod-nf-reject6
+   DEPENDS += +libamxc
+   DEPENDS += +libfwrules
+-  DEPENDS += +libiptc
+   DEPENDS += +libip4tc
+   DEPENDS += +libip6tc
+   DEPENDS += +libsahtrace
+diff --git a/feeds/feed_prpl/prplmesh/Makefile b/feeds/feed_prpl/prplmesh/Makefile
+index 21d5dbf..e056670 100644
+--- a/feeds/feed_prpl/prplmesh/Makefile
++++ b/feeds/feed_prpl/prplmesh/Makefile
+@@ -12,7 +12,6 @@ PKG_BUILD_DIR:=$(BUILD_DIR)/prplMesh-$(PKG_REV)
+ 
+ PKG_CONFIG_DEPENDS:= \
+ 	CONFIG_WIRELESS_STA \
+-	CONFIG_TARGET_intel_mips \
+ 	CONFIG_PACKAGE_libamxb
+ 
+ include $(INCLUDE_DIR)/package.mk
+@@ -44,9 +43,7 @@ define Package/prplmesh
+ 		+TARGET_intel_mips:bridge-ugw
+ #	non-intel_mips dependencies:
+ 	DEPENDS+= \
+-		+!TARGET_intel_mips:hostapd-openssl \
+-		+!TARGET_intel_mips:hostapd-utils \
+-		+!TARGET_intel_mips:wpa-supplicant-openssl
++		+!TARGET_intel_mips:wpad-openssl
+ #	The ambiorix library is optional, select it if libamxb is selected:
+ 	DEPENDS+= +PACKAGE_libamxb:libamxb \
+ 		+PACKAGE_libamxb:libamxc \

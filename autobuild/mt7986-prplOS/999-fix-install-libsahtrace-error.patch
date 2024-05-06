@@ -1,0 +1,14 @@
+diff -urN a/makefile b/makefile
+--- a/makefile	2022-05-30 19:24:14.839090333 +0800
++++ b/makefile	2022-05-30 19:25:04.166015146 +0800
+@@ -22,8 +22,8 @@
+ install:
+ 	$(INSTALL) -D -p -m 0644 include/debug/sahtrace.h $(D)$(INCLUDEDIR)/debug/sahtrace.h
+ 	$(INSTALL) -D -p -m 0644 include/debug/sahtrace_macros.h $(D)$(INCLUDEDIR)/debug/sahtrace_macros.h
+-	$(INSTALL) -D -p -m 0755 src/$(COMPONENT).so $(D)/lib/$(COMPONENT).so.$(PV)
+-	ln -sfr $(D)/lib/$(COMPONENT).so.$(PV) $(D)/lib/$(COMPONENT).so
++	$(INSTALL) -D -p -m 0755 src/$(COMPONENT).so $(D)/$(LIBDIR)/$(COMPONENT).so.$(PV)
++	ln -sfr $(D)/$(LIBDIR)/$(COMPONENT).so.$(PV) $(D)/$(LIBDIR)/$(COMPONENT).so
+ 	$(INSTALL) -D -p -m 0644 pkgconfig/pkg-config.pc $(PKG_CONFIG_LIBDIR)/sahtrace.pc
+ 
+ .PHONY: compile clean install

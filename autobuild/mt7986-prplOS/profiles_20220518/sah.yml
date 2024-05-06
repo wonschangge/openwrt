@@ -1,0 +1,17 @@
+feeds:
+  - name: ambiorix
+    uri: https://gitlab.com/soft.at.home/buildsystems/openwrt/feed_amx.git
+    tracking_branch: master
+    revision: b6c4b87e3faa50dec714498717a29f8b8392609d
+
+packages:
+  - libamxb
+  - libamxc
+  - libamxd
+  - libamxj
+  - libamxo
+  - libamxp
+  - uriparser
+  - yajl
+  - mod-amxb-ubus
+  - amxo-cg

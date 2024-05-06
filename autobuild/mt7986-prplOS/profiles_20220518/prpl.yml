@@ -1,0 +1,143 @@
+---
+description: Add the prpl features
+feeds:
+  - name: feed_prpl
+    uri: https://gitlab.com/prpl-foundation/prplOS/feed-prpl.git
+    tracking_branch: prplos
+    revision: 6ecb08cdbcb22c5871b9451236e13c39af2c6748
+
+additional_packages:
+  - feed: packages
+    packages:
+      - chrony
+      - libnl-core
+      - libnl-route
+      - syslog-ng
+
+packages:
+  - acl-manager
+  - amx-cli
+  - cthulhu
+  - cthulhu-lxc
+  - deviceinfo-manager
+  - dhcpv4-manager
+  - dhcpv6s-manager
+  - ethernet-manager
+  - ip-manager
+  - iptables-mod-ipopt
+  - libdhcpoptions
+  - libfwinterface
+  - libfwrules
+  - libnetmodel
+  - lxc4
+  - lxc4-attach
+  - lxc4-auto
+  - lxc4-autostart
+  - lxc4-cgroup
+  - lxc4-checkconfig
+  - lxc4-common
+  - lxc4-config
+  - lxc4-configs
+  - lxc4-console
+  - lxc4-copy
+  - lxc4-create
+  - lxc4-destroy
+  - lxc4-device
+  - lxc4-execute
+  - lxc4-freeze
+  - lxc4-hooks
+  - lxc4-info
+  - lxc4-ls
+  - lxc4-monitor
+  - lxc4-start
+  - lxc4-stop
+  - lxc4-templates
+  - lxc4-top
+  - lxc4-unfreeze
+  - lxc4-unprivileged
+  - lxc4-unshare
+  - lxc4-user-nic
+  - lxc4-usernsexec
+  - lxc4-wait
+  - mod-amxb-ubus
+  - mod-ba-cli
+  - mod-dmext
+  - mod-dmstats
+  - mod-qos-tc
+  - mod-vlan-ioctl
+  - mod-sahtrace
+  - multisettings
+  - netdev-plugin
+  - netmodel
+  - odl-generator
+  - owsd
+  - pcm-manager
+  - prplmesh
+  - rlyeh
+  - routing-manager
+  - tc
+  - time-manager
+  - timingila
+  - timingila-cthulhu
+  - timingila-rlyeh
+  - tr181-bridging
+  - tr181-device
+  - tr181-dhcpv4client
+  - tr181-dhcpv6client
+  - tr181-firewall
+  - tr181-qos
+  - tr181-usermanagement
+  - u80211d
+  - umdns
+  - wan-manager
+
+diffconfig: |
+          CONFIG_PACKAGE_rpcd-mod-luci=y
+          CONFIG_PACKAGE_ip-full=y
+          CONFIG_PACKAGE_ip-bridge=y
+          # CONFIG_PACKAGE_firewall is not set
+          # CONFIG_PACKAGE_logd is not set
+          # lxc options for LCM
+          CONFIG_SAH_SERVICES_CTHULHU_INIT_CONTAINER_BACKEND=y
+          CONFIG_SAH_SERVICES_CTHULHU_CONTAINER_BACKEND="/usr/lib/cthulhu-lxc/cthulhu-lxc.so"
+          CONFIG_SAH_SERVICES_TIMINGILA_INIT_ADAPTERS=y
+          CONFIG_SAH_SERVICES_TIMINGILA_ADAPTER_PACKAGER="/usr/lib/timingila-rlyeh/timingila-rlyeh.so"
+          CONFIG_SAH_SERVICES_TIMINGILA_ADAPTER_CONTAINER="/usr/lib/timingila-cthulhu/timingila-cthulhu.so"
+          CONFIG_SAH_LIB_CTHULHU-LXC_LXC_TOOLS_PREFIX="/opt/prplos/usr/bin/"
+          CONFIG_SAH_LIB_CTHULHU-LXC_PRPL_OS_RPATH=y
+          # kernel options for lcm
+          CONFIG_KERNEL_ARM_PMU=y
+          CONFIG_KERNEL_BLK_CGROUP=y
+          CONFIG_KERNEL_BLK_DEV_THROTTLING=y
+          CONFIG_KERNEL_CGROUPS=y
+          CONFIG_KERNEL_CGROUP_CPUACCT=y
+          CONFIG_KERNEL_CGROUP_DEVICE=y
+          CONFIG_KERNEL_CGROUP_FREEZER=y
+          CONFIG_KERNEL_CGROUP_PERF=y
+          CONFIG_KERNEL_CGROUP_PIDS=y
+          CONFIG_KERNEL_CGROUP_SCHED=y
+          CONFIG_KERNEL_CPUSETS=y
+          CONFIG_KERNEL_DEVPTS_MULTIPLE_INSTANCES=y
+          CONFIG_KERNEL_FAIR_GROUP_SCHED=y
+          CONFIG_KERNEL_FREEZER=y
+          CONFIG_KERNEL_IPC_NS=y
+          CONFIG_KERNEL_LXC_MISC=y
+          CONFIG_KERNEL_MEMCG=y
+          CONFIG_KERNEL_MEMCG_KMEM=y
+          CONFIG_KERNEL_MEMCG_SWAP=y
+          CONFIG_KERNEL_MEMCG_SWAP_ENABLED=y
+          CONFIG_KERNEL_MM_OWNER=y
+          CONFIG_KERNEL_NAMESPACES=y
+          CONFIG_KERNEL_NETPRIO_CGROUP=y
+          CONFIG_KERNEL_NET_CLS_CGROUP=y
+          CONFIG_KERNEL_NET_NS=y
+          CONFIG_KERNEL_PERF_EVENTS=y
+          CONFIG_KERNEL_PID_NS=y
+          CONFIG_KERNEL_POSIX_MQUEUE=y
+          CONFIG_KERNEL_PROC_PID_CPUSET=y
+          CONFIG_KERNEL_RESOURCE_COUNTERS=y
+          CONFIG_KERNEL_RT_GROUP_SCHED=y
+          CONFIG_KERNEL_SECCOMP=y
+          CONFIG_KERNEL_SECCOMP_FILTER=y
+          CONFIG_KERNEL_USER_NS=y
+          CONFIG_KERNEL_UTS_NS=y

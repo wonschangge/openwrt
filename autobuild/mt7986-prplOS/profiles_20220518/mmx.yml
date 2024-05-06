@@ -1,0 +1,21 @@
+feeds:
+  - name: mmx
+    uri: https://github.com/InangoSystems/feed-mmx.git
+    tracking_branch: mmx-as-luci-page
+    revision: 63365f3c8cfe16a2b7ac46ca6874056dcd962d23
+
+packages:
+  - luasocket
+  - luaxml
+  - mmx-web-lib-chartist
+  - libing-gen-utils
+  - libmicroxml
+  - libmmx-backapi
+  - libmmx-frontapi
+  - mmx-cli
+  - mmx-ep
+  - mmx-web
+  - inango-prplmesh-en
+  - prplmesh-be
+diffconfig: |
+  CONFIG_EP_MAX_METHOD_STR_LEN=512
