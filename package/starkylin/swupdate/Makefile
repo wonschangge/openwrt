@@ -218,7 +218,6 @@ define Package/$(PKG_NAME)/install
 	$(INSTALL_DIR) $(1)/etc/swupdate
 	$(INSTALL_DIR) $(1)/www
 	$(CP) ./swupdate/* $(1)/etc/swupdate/
-	$(CP) -r ./var/www/swupdate $(1)/www/
 	$(INSTALL_DIR) $(1)/sbin
 	$(INSTALL_BIN) $(PKG_INSTALL_DIR)/usr/bin/swupdate $(1)/sbin
 

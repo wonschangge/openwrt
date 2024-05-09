@@ -15,36 +15,36 @@ endef
 
 ### Image scripts ###
 # build persistent,bootA,bootB
+# mcopy -i $@.persistent autoboot.txt ::
+# mcopy -i $@.bootA cmdline_a.txt ::cmdline.txt
+# mcopy -i $@.bootB $(KDIR)/COPYING.linux ::
+# mcopy -i $@.bootB $(KDIR)/LICENCE.broadcom ::
+# mcopy -i $@.bootB cmdline_b.txt ::cmdline.txt
+# mcopy -i $@.bootB config.txt ::
+# mcopy -i $@.bootB distroconfig.txt ::
+# $(foreach dts,$(shell echo $(DEVICE_DTS)),mcopy -i $@.bootB $(DTS_DIR)/$(dts).dtb ::;)
+# mmd -i $@.bootB ::/overlays
+# mcopy -i $@.bootB $(DTS_DIR)/overlays/*.dtbo ::/overlays/
+# mcopy -i $@.bootB $(DTS_DIR)/overlays/README ::/overlays/
 define Build/boot-common
 	rm -f $@.persistent
 	mkfs.fat -F 32 -n persistent -C $@.persistent $(FAT32_BLOCKS)
-	mcopy -i $@.persistent autoboot.txt ::
+	mcopy -i $@.persistent $(KDIR)/COPYING.linux ::
+	mcopy -i $@.persistent $(KDIR)/LICENCE.broadcom ::
+	mcopy -i $@.persistent config.txt ::
+	mcopy -i $@.persistent distroconfig.txt ::
+	$(foreach dts,$(shell echo $(DEVICE_DTS)),mcopy -i $@.persistent $(DTS_DIR)/$(dts).dtb ::;)
+	mmd -i $@.persistent ::/overlays
+	mcopy -i $@.persistent $(DTS_DIR)/overlays/*.dtbo ::/overlays/
+	mcopy -i $@.persistent $(DTS_DIR)/overlays/README ::/overlays/
 
 	rm -f $@.bootA
 	mkfs.fat -n bootA -C $@.bootA $(FAT32_BLOCKS)
-	mcopy -i $@.bootA $(KDIR)/COPYING.linux ::
-	mcopy -i $@.bootA $(KDIR)/LICENCE.broadcom ::
-	mcopy -i $@.bootA cmdline_a.txt ::cmdline.txt
-	mcopy -i $@.bootA config.txt ::
-	mcopy -i $@.bootA distroconfig.txt ::
 	mcopy -i $@.bootA $(IMAGE_KERNEL) ::$(KERNEL_IMG)
-	$(foreach dts,$(shell echo $(DEVICE_DTS)),mcopy -i $@.bootA $(DTS_DIR)/$(dts).dtb ::;)
-	mmd -i $@.bootA ::/overlays
-	mcopy -i $@.bootA $(DTS_DIR)/overlays/*.dtbo ::/overlays/
-	mcopy -i $@.bootA $(DTS_DIR)/overlays/README ::/overlays/
 
 	rm -f $@.bootB
 	mkfs.fat -n bootB -C $@.bootB $(FAT32_BLOCKS)
-	mcopy -i $@.bootB $(KDIR)/COPYING.linux ::
-	mcopy -i $@.bootB $(KDIR)/LICENCE.broadcom ::
-	mcopy -i $@.bootB cmdline_b.txt ::cmdline.txt
-	mcopy -i $@.bootB config.txt ::
-	mcopy -i $@.bootB distroconfig.txt ::
 	mcopy -i $@.bootB $(IMAGE_KERNEL) ::$(KERNEL_IMG)
-	$(foreach dts,$(shell echo $(DEVICE_DTS)),mcopy -i $@.bootB $(DTS_DIR)/$(dts).dtb ::;)
-	mmd -i $@.bootB ::/overlays
-	mcopy -i $@.bootB $(DTS_DIR)/overlays/*.dtbo ::/overlays/
-	mcopy -i $@.bootB $(DTS_DIR)/overlays/README ::/overlays/
 endef
 
 define Build/boot-2708
@@ -58,12 +58,13 @@ define Build/boot-2708
 endef
 
 # copy files to bootA/bootB
+# 	mcopy -i $@.bootA $(KDIR)/start4.elf ::
+# 	mcopy -i $@.bootA $(KDIR)/fixup4.dat ::
+# 	mcopy -i $@.bootB $(KDIR)/start4.elf ::
+# 	mcopy -i $@.bootB $(KDIR)/fixup4.dat ::
 define Build/boot-2711
-	mcopy -i $@.bootA $(KDIR)/start4.elf ::
-	mcopy -i $@.bootA $(KDIR)/fixup4.dat ::
-
-	mcopy -i $@.bootB $(KDIR)/start4.elf ::
-	mcopy -i $@.bootB $(KDIR)/fixup4.dat ::
+	mcopy -i $@.persistent $(KDIR)/start4.elf ::
+	mcopy -i $@.persistent $(KDIR)/fixup4.dat ::
 endef
 
 define Build/sdcard-img
