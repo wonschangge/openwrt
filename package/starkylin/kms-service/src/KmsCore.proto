@@ -1,0 +1,180 @@
+//指定protobuf版本
+syntax = "proto3";
+import "google/protobuf/any.proto";
+
+package proto;
+//指定路径
+option java_package = "com.starkylin.mqtt.proto";
+option java_outer_classname = "KmsCore";
+
+enum MessageType {
+  // 通知
+  NOTIFICATION = 0;
+  // 升级
+  UPDATE_SYSTEM = 1;
+  // 日志上报
+  LOG_REPORT = 2;
+  // 安全指令
+  SECURITY = 3;
+  // 下发
+  DOWNLOAD = 4;
+  // 上报
+  UPLOAD = 5;
+  //应答
+  RESPONSE = 6;
+}
+
+// 终端消息
+message MessageInfo {
+  MessageType type = 1;
+  google.protobuf.Any data = 2;
+  int64 msg_id = 3;
+  int64 msg_time = 4;
+}
+
+//消息提示 NOTIFICATION
+message Notification {
+  //普通通知；重要通知；进度条通知；大文本通知；大图片通知；自定义通知
+  EventType event_type = 1;
+  //消息的标题
+  string content_title = 2;
+  //消息的内容
+  string content_text = 3;
+  //消息的优先级
+  int32 priority = 4;
+  //通道
+  Channel channel = 5;
+  //跳转
+  repeated Intent intent = 6;
+  message Intent {
+    //跳转包名
+    string component_pkg = 1;
+    //跳转类名
+    string component_cls = 2;
+    //跳转动作
+    repeated string action = 3;
+    //跳转参数
+    repeated string extra = 4;
+    string category = 5;
+    int32 request_code = 6;
+    int32 pending_intent_flag = 7;
+    Bundle bundle = 8;
+    message Bundle {
+      //待定
+    }
+  }
+  message Channel {
+    //待定
+    //    int32 channel_id = 1;
+    //    string channel_name = 2;
+    //    int32 importance = 3;
+    //    bool allow_bubbles = 4;
+    //    bool enable_light = 5;
+    //    int32 light_color = 6;
+    //    bool enable_vibration = 7;
+    //    bool show_badge = 8;
+  }
+}
+
+//设备更新  UPDATE_SYSTEM
+message DeviceUpdate {
+  // 更新包版本号
+  string version = 1;
+  // 更新主要信息
+  string release_note = 2;
+  // 更新的标题
+  string release_title = 3;
+  // 是否强制更新
+  bool force_update = 4;
+  // 更新包时间戳
+  string build_time = 5;
+  // 备注
+  string remark = 6;
+  // 下载地址
+  string download_url = 7;
+  // 来源
+  string source_desc = 8;
+  // 系统大小
+  int64 size = 9;
+}
+
+//日志调控  LOG_REPORT
+message LogCtrl {
+  // 操作类型
+  string type = 1;
+  // 设备token
+  string clientToken = 2;
+  // 日志等级
+  int32 log_level = 3;
+  // 结果
+  int32 result = 4;
+  // 时间戳
+  double timestamp = 5;
+}
+
+//事件类型
+enum EventType {
+  // 重连
+  RECONNECT = 0;
+  // 断开连接
+  DISCONNECT = 1;
+  // 控制
+  CONTROL = 2;
+  //升级
+  UPGRADE = 3;
+  //设备信息
+  DEVICE_INFO = 4;
+  //普通通知
+  COMMON = 5;
+  //重要通知
+  IMPORTANT = 6;
+  //设备管控设置策略
+  SECURITY_SET_POLICY = 7;
+  //设备管控获取策略状态
+  SECURITY_GET_STATE = 8;
+  //添加群组
+  ADD_GROUP = 9;
+  //删除群组
+  DELETE_GROUP = 10;
+  // 任务信息
+  TASK_INFO = 11;
+  // 任务信息
+  PUSH_FILE = 12;
+  // 删除文件
+  REMOVE_FILE = 13;
+}
+
+message Download {
+  // 事件ID
+  EventType event_type = 1;
+  // Json 字符串
+  string json_str = 3;
+}
+
+message Upload {
+  // 事件ID
+  EventType event_type = 1;
+  // 设备ID
+  string device_id = 2;
+  // Json 字符串
+  string json_str = 3;
+}
+
+message Response {
+  //状态 success /failed /
+  string status = 1;
+  //json str
+  string message = 2;
+}
+
+
+
+message SecurityInfo {
+  // 事件ID
+  EventType event_type = 1;
+  // 策略集(Json字符串)
+  string policies = 2;
+
+
+  
+}

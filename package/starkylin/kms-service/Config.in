@@ -1,0 +1,7 @@
+menu "KMS-Service Configuration"
+
+config KMS_SERVICE
+    bool "Customize kms-service options"
+    default y
+    help
+        Enabling kms-service.

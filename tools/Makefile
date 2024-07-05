@@ -62,6 +62,7 @@ tools-y += padjffs2
 tools-y += patch-image
 tools-y += patchelf
 tools-y += pkgconf
+tools-y += protobuf
 tools-y += quilt
 tools-y += squashfs4
 tools-y += sstrip
